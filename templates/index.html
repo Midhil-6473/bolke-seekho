@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bolke Seekho — Voice DSA Revision in Your Language</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; background:#0f1220; color:#f2f3f7; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .sub { color:#aab; margin-top:0; }
+  #micBtn { font-size: 1.1rem; padding: 14px 26px; border-radius: 999px; border: 0; background:#ff7847; color:#fff; cursor:pointer; }
+  #micBtn.recording { background:#d33; }
+  #status { min-height: 1.4em; color:#ffd166; }
+  .card { background:#1a1e33; border-radius:12px; padding:14px 16px; margin-top:14px; }
+  .card h3 { margin:0 0 6px; font-size:.95rem; color:#8ecae6; }
+  .chips button, .followups button { margin:4px 4px 0 0; padding:6px 10px; border-radius:999px; border:1px solid #445; background:#232842; color:#dde; cursor:pointer; }
+  .followups button { background:#2c4a2e; border-color:#4a7a4e; }
+  input[type=text], select { width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid #445; background:#12152a; color:#fff; }
+  select { width:auto; min-width: 200px; }
+  audio { width:100%; margin-top:10px; }
+  .warn { color:#ff9f9f; }
+  label { color:#aab; font-size:.9rem; }
+</style>
+</head>
+<body>
+  <h1>🎙️ Bolke Seekho</h1>
+  <p class="sub">DSA revision in <b>your</b> language — bolo, suno, samjho. Ask in any of 10 Indian languages; answers come back by voice (Gnani <b>Prisma</b> + <b>Timbre</b>) in Hinglish, English, Telugu, Tamil, Kannada and Malayalam.</p>
+
+  {% if not key_set %}<p class="warn">⚠️ GNANI_API_KEY is not set. Add it to the .env file and restart the app.</p>{% endif %}
+
+  <p>
+    <label for="langSel">Question language / प्रश्न की भाषा:</label><br>
+    <select id="langSel">
+      <option value="hinglish" selected>Hinglish (हिंदी + English)</option>
+      <option value="english">English</option>
+      <option value="telugu">Telugu (తెలుగు)</option>
+      <option value="tamil">Tamil (தமிழ்)</option>
+      <option value="kannada">Kannada (ಕನ್ನಡ)</option>
+      <option value="malayalam">Malayalam (മലയാളം)</option>
+      <option value="marathi">Marathi (मराठी) — answers in English</option>
+      <option value="bengali">Bengali (বাংলা) — answers in English</option>
+      <option value="gujarati">Gujarati (ગુજરાતી) — answers in English</option>
+      <option value="punjabi">Punjabi (ਪੰਜਾਬੀ) — answers in English</option>
+    </select>
+  </p>
+
+  <button id="micBtn">🎤 Bolna shuru karo</button>
+  <p id="status"></p>
+
+  <div class="card">
+    <h3>Sample sawal (tap karke bhi pooch sakte ho)</h3>
+    <div class="chips">
+      <button data-q="Two sum array mein kaise karte hain?">Two Sum</button>
+      <button data-q="3Sum ka pattern kya hai?">3Sum</button>
+      <button data-q="Container with most water samjhao">Container With Most Water</button>
+      <button data-q="Stock kab kharidein aur kab bechein, max profit ke liye?">Buy &amp; Sell Stock</button>
+      <button data-q="Product of array except self bina division ke kaise hoga?">Product Except Self</button>
+      <button data-q="Prefix sum se subarray sum equals k kaise nikalta hai?">Prefix Sum</button>
+      <button data-q="Longest substring bina repeat characters ke?">Longest Substring</button>
+      <button data-q="Valid anagram kaise check karte hain?">Valid Anagram</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Ya sawal type karo (apni language mein)</h3>
+    <input type="text" id="textQ" placeholder="e.g. Move zeroes end mein kaise le jaate hain?">
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <h3>Tumne poochha</h3>
+    <p id="transcript"></p>
+    <h3>Jawab — <span id="topic"></span></h3>
+    <p id="answer"></p>
+    <audio id="player" controls></audio>
+    <p id="ttsError" class="warn"></p>
+    <div class="followups" id="followups" style="display:none">
+      <h3>Clarify karo</h3>
+      <button id="btnSimple">🪶 Aur simple mein samjhao</button>
+      <button id="btnExample">🔢 Ek example do</button>
+    </div>
+  </div>
+
+<script>
+const micBtn = document.getElementById('micBtn');
+const statusEl = document.getElementById('status');
+const langSel = document.getElementById('langSel');
+let mediaRecorder = null, streamRef = null, audioCtx = null;
+let currentTopic = '';
+
+async function startRecording() {
+  streamRef = await navigator.mediaDevices.getUserMedia({ audio: true });
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(streamRef);
+  const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+  const buffers = [];
+  processor.onaudioprocess = e => buffers.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  source.connect(processor); processor.connect(audioCtx.destination);
+  mediaRecorder = { buffers, processor, source, sampleRate: audioCtx.sampleRate };
+  micBtn.textContent = '⏹️ Ruko aur jawab suno';
+  micBtn.classList.add('recording');
+  statusEl.textContent = 'Sun raha hoon… bolo!';
+}
+function stopRecording() {
+  const { buffers, sampleRate } = mediaRecorder;
+  mediaRecorder.processor.disconnect(); mediaRecorder.source.disconnect();
+  streamRef.getTracks().forEach(t => t.stop()); audioCtx.close();
+  micBtn.textContent = '🎤 Bolna shuru karo'; micBtn.classList.remove('recording');
+  return encodeWav(downsample(merge(buffers), sampleRate, 16000), 16000);
+}
+function merge(buffers) {
+  let len = 0; buffers.forEach(b => len += b.length);
+  const out = new Float32Array(len); let off = 0;
+  buffers.forEach(b => { out.set(b, off); off += b.length; });
+  return out;
+}
+function downsample(buf, inRate, outRate) {
+  if (inRate === outRate) return buf;
+  const ratio = inRate / outRate, newLen = Math.round(buf.length / ratio), out = new Float32Array(newLen);
+  for (let i = 0; i < newLen; i++) {
+    const start = Math.round(i * ratio), end = Math.round((i + 1) * ratio);
+    let sum = 0, n = 0;
+    for (let j = start; j < end && j < buf.length; j++) { sum += buf[j]; n++; }
+    out[i] = n ? sum / n : 0;
+  }
+  return out;
+}
+function encodeWav(samples, rate) {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buffer);
+  const wstr = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  wstr(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); wstr(8, 'WAVEfmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  wstr(36, 'data'); v.setUint32(40, samples.length * 2, true);
+  let off = 44;
+  for (let i = 0; i < samples.length; i++, off += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+micBtn.onclick = async () => {
+  if (!mediaRecorder) { await startRecording(); return; }
+  const wav = stopRecording(); mediaRecorder = null;
+  statusEl.textContent = 'Prisma sun raha hai…';
+  const fd = new FormData();
+  fd.append('audio', wav, 'question.wav');
+  fd.append('lang', langSel.value);
+  try {
+    const res = await fetch('/api/ask', { method: 'POST', body: fd });
+    showResult(await res.json());
+  } catch (e) { statusEl.textContent = 'Network error: ' + e; }
+};
+
+function showResult(data) {
+  if (data.error) { statusEl.textContent = '⚠️ ' + data.error; return; }
+  statusEl.textContent = '';
+  document.getElementById('resultCard').style.display = 'block';
+  if (data.transcript !== undefined) document.getElementById('transcript').textContent = data.transcript || '';
+  document.getElementById('topic').textContent = data.topic || '';
+  document.getElementById('answer').textContent = data.answer || '';
+  document.getElementById('ttsError').textContent = data.tts_error ? ('Voice reply failed: ' + data.tts_error) : '';
+  currentTopic = data.topic || '';
+  document.getElementById('followups').style.display = (currentTopic && currentTopic !== 'Not in list') ? 'block' : 'none';
+  if (data.audio_base64) {
+    const player = document.getElementById('player');
+    player.src = 'data:audio/mpeg;base64,' + data.audio_base64;
+    player.play().catch(() => {});
+  }
+}
+
+document.querySelectorAll('.chips button').forEach(b => b.onclick = () => askText(b.dataset.q));
+document.getElementById('textQ').addEventListener('keydown', e => { if (e.key === 'Enter') askText(e.target.value); });
+async function askText(q) {
+  if (!q.trim()) return;
+  statusEl.textContent = 'Timbre jawab taiyaar kar raha hai…';
+  const res = await fetch('/api/text', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ question: q, lang: langSel.value }) });
+  showResult(await res.json());
+}
+
+async function followup(kind) {
+  if (!currentTopic) return;
+  statusEl.textContent = 'Clarify kar raha hoon…';
+  const res = await fetch('/api/followup', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ topic: currentTopic, kind: kind, lang: langSel.value }) });
+  const data = await res.json();
+  if (data.error) { statusEl.textContent = '⚠️ ' + data.error; return; }
+  statusEl.textContent = '';
+  document.getElementById('answer').textContent = data.answer || '';
+  document.getElementById('ttsError').textContent = data.tts_error ? ('Voice reply failed: ' + data.tts_error) : '';
+  if (data.audio_base64) {
+    const player = document.getElementById('player');
+    player.src = 'data:audio/mpeg;base64,' + data.audio_base64;
+    player.play().catch(() => {});
+  }
+}
+document.getElementById('btnSimple').onclick = () => followup('simple');
+document.getElementById('btnExample').onclick = () => followup('example');
+</script>
+</body>
+</html>
