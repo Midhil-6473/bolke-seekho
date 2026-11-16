@@ -2,12 +2,16 @@
 
 Ask a DSA question by voice in any of 10 Indian languages (Gnani Prisma
 speech-to-text), hear a pattern-style answer spoken back (Gnani Timbre
-text-to-speech). 40 topics across arrays, strings, linked lists, stacks,
-trees, graphs, dynamic programming, sorting, and heaps. The whole screen
-translates when the language changes, and typed questions work even
-without an API key (text answers only; voice needs the key).
+text-to-speech). 40 curated topics across arrays, strings, linked lists,
+stacks, trees, graphs, dynamic programming, sorting, and heaps — and any
+other DSA question is answered by a configured LLM, so students are not
+limited to a fixed list. The whole screen translates when the language
+changes, and typed questions work even without an API key (text answers
+only; voice needs the key).
 
 Set GNANI_API_KEY (from app.gnani.ai) in the environment or in a .env file.
+For open-ended answers, also set BOLKE_LLM_BASE_URL, BOLKE_LLM_MODEL and
+optionally BOLKE_LLM_API_KEY (any OpenAI-compatible chat API).
 Run:  python app.py   then open http://127.0.0.1:5000
 """
 
@@ -18,6 +22,7 @@ import tempfile
 from flask import Flask, jsonify, render_template, request
 
 from answers import LANGUAGES, answer_query, find_followup, suggest_topics, topic_list
+from llm import llm_answer
 
 app = Flask(__name__)
 
@@ -122,6 +127,34 @@ def spoken_payload(text: str, lang: str, topic: str = "") -> dict:
     return {"topic": topic, "answer": text, "audio_base64": audio_b64, "tts_error": "", "voice_available": True}
 
 
+def _answer(question: str, lang: str) -> dict:
+    """Bank first, LLM fallback: any DSA question gets an answer.
+
+    Questions matching one of the 40 curated topics answer from the bank
+    (fast, checked, pattern-style). Anything else goes to the configured
+    LLM so the app is not limited to a fixed list. When no LLM is
+    configured or it fails, the bank's family guide / not-in-list text
+    is returned, exactly as before.
+    """
+    result = answer_query(question, lang)
+    llm_used = False
+    if not result["matched"]:
+        text = llm_answer(question, lang)
+        if text:
+            result = {
+                "topic": "AI answer",
+                "answer": text,
+                "category": "Open DSA question",
+                "difficulty": "",
+                "matched": False,
+                "family": "",
+                "suggestions": result["suggestions"],
+            }
+            llm_used = True
+    result["llm"] = llm_used
+    return result
+
+
 @app.get("/")
 def home():
     topics = topic_list()
@@ -185,7 +218,7 @@ def ask_voice():
             ),
             422,
         )
-    result = answer_query(transcript, lang)
+    result = _answer(transcript, lang)
     payload = spoken_payload(result["answer"], lang, result["topic"])
     payload.update(
         {
@@ -196,6 +229,7 @@ def ask_voice():
             "family": result["family"],
             "suggestions": result["suggestions"],
             "answer_lang": _bank_lang(lang),
+            "llm": result["llm"],
         }
     )
     return jsonify(payload)
@@ -209,7 +243,7 @@ def ask_text():
     lang = (data.get("lang") or "hinglish").lower()
     if not question:
         return jsonify({"error": "Type or pick a question first.", "error_code": "EMPTY_QUESTION"}), 400
-    result = answer_query(question, lang)
+    result = _answer(question, lang)
     payload = spoken_payload(result["answer"], lang, result["topic"])
     payload.update(
         {
@@ -220,6 +254,7 @@ def ask_text():
             "family": result["family"],
             "suggestions": result["suggestions"],
             "answer_lang": _bank_lang(lang),
+            "llm": result["llm"],
         }
     )
     return jsonify(payload)
