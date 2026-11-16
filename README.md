@@ -1,15 +1,44 @@
-# Bolke Seekho — Voice DSA Revision in Your Language 🎙️
+# Bolke Seekho — Search Any DSA Algorithm, Learn Every Way to Solve It 🎙️
 
 India has 700+ living languages, and most DSA teaching happens in English or Hindi.
-Bolke Seekho lets a student **ask a DSA question by voice in their own language** and
-hear the answer spoken back — the way they would actually revise with a friend.
+Bolke Seekho lets a student **search any algorithm** — by typing or by voice in their
+own language — and see the **key code first**, then **every approach** with its logic,
+code, and time/space complexity, with the **best technique flagged**. Then they can
+**ask follow-up questions** about the algorithm or one of its methods, and the voice
+agent answers in that context.
 
-Built for the **Gnani AI Great Indian AI Internship Challenge** (submitted Nov 15, 2026)
-and **rebuilt on Nov 16, 2026** from real testing feedback: a livelier interface, full
-interface translation, much wider DSA coverage, and a search bar that actually works.
-Open-ended LLM answers were added the same night, so the app is not limited to its
-topic list — any DSA question gets an answer.
+Built for the **Gnani AI Great Indian AI Internship Challenge** (submitted Nov 15, 2026),
+rebuilt Nov 16, 2026 from real testing feedback (full interface translation, wider
+coverage, working search, open-ended LLM answers), redesigned again on
+Nov 17, 2026 as a search-first interface, and given a full **voice-first revision
+studio** redesign the same night: a calm dark interface, a 3D Learning Orb that
+shows voice state, a conversation drawer for follow-ups, and a voice sheet that
+covers every voice state gracefully.
 
+- **Clean search-first interface:** one search bar (plus mic) under a Learning Orb.
+  No stacked lists, no catalogue, no dashboard. Type or say an algorithm name —
+  "prime number", "quicksort", "BFS" — and the answer appears. Press `/` to jump
+  to search from anywhere.
+- **Key code first, then all approaches:** every result shows the main code of the
+  best approach up front, then each approach with its key logic, Java code, and
+  time/space complexity. The optimal technique carries a **Best** badge, with the
+  reasoning in its logic text (e.g. prime checking: trial division, √n trial
+  division, 6k±1 optimized, and the Sieve for ranges). Desktop gets an approach
+  navigator; mobile gets accordions with the best approach open by default.
+- **Ask about a method:** every approach has an **"Ask about this method"** button
+  that opens a conversation drawer (desktop) or bottom sheet (mobile) showing the
+  context explicitly ("Prime Number Check → 6k ± 1 optimised"). Questions go to
+  the voice agent with the algorithm and method as context, so answers stay on
+  the method the student is looking at. Voice questions get spoken answers;
+  typed questions get text answers with Listen, pause, replay, and transcript.
+  The algorithm page stays underneath, so nobody loses their place.
+- **Voice states, handled honestly:** a voice sheet covers permission request,
+  listening (with amplitude ripples and a live timer), processing, speaking,
+  paused playback, no speech detected, permission denied, voice not configured,
+  and unsupported browsers — always with a text-input fallback. Every spoken
+  answer also appears as readable text. Spoken-answer support per language is
+  configuration-driven; the four languages without spoken answers yet are
+  understood and answered in English, and the interface says so politely.
 - **Ask in 10 Indian languages** (Gnani **Prisma** speech-to-text): Hinglish, English,
   Telugu, Tamil, Kannada, Malayalam, Marathi, Bengali, Gujarati, Punjabi — including
   natural code-switching, because tech terms stay English in every language.
@@ -17,24 +46,28 @@ topic list — any DSA question gets an answer.
   Tamil, Kannada and Malayalam** (Marathi/Bengali/Gujarati/Punjabi questions are
   understood and answered in English for now).
 - **The whole screen translates** when the language changes: headings, buttons, hints,
-  banners, and status messages — not just the voice. Topic and category names stay in
-  English, as students actually say them ("linked list", "DP", "binary search").
-- **AI-era answers, not code recitation:** every answer teaches the *pattern* — why it
-  works, its complexity, and the trade-off to state in an interview.
-- **40 topics**, browsable by category, with live search suggestions as you type.
-  Questions outside the list get a **pattern-family guide** (e.g. graph patterns,
-  DP patterns) instead of a dead end, plus "try next" suggestions.
-- **Any DSA question:** with an LLM configured (see below), questions outside the
-  40 topics are answered by the model in the same pattern style and in the
-  student's language, and labelled "AI answer" in the chat. Without an LLM, the
-  pattern-family guides above apply instead.
-- **Clarify, don't dead-end:** after any answer, tap **"Explain simpler"** for a
-  simpler version or **"Give an example"** for a worked example. Answers can be
-  replayed or copied, and explored topics are tracked on screen.
-- **Search works without an API key:** typed questions always return text answers.
+  banners, and status messages — not just the voice. Algorithm and approach names
+  stay in English, as students actually say them ("linked list", "DP", "binary search").
+  UI text lives in one 110-key table per language in `templates/index.html`.
+- **Design tokens** (CSS custom properties in `templates/index.html`): background
+  `#070A12`, surface `#0D1320`, elevated `#141C2D`, text `#F5F7FB` / `#9AA7BC`,
+  brand violet `#8B7CFF`, warm voice accent `#FFB86B`, Best accent `#43D9C3`,
+  error `#FF7B86`, borders at white 8–10% opacity. Manrope + Noto Sans script
+  families for UI text, JetBrains Mono for code. A light theme is included
+  (settings popover). The orb is inline SVG with CSS state animations and a
+  static fallback under `prefers-reduced-motion`. Touch targets are 44 px or
+  larger, focus states are visible, and state is never carried by colour alone.
+- **AI-era teaching, not code recitation:** every approach explains the *key logic* —
+  why it works — plus its complexity and trade-off, so the student can state it in
+  an interview.
+- **41 curated algorithms** with hand-written approaches and Java code (see below).
+  Anything else is answered by a configured LLM **in the same shape** — key code,
+  approaches, complexities, best pick — and labelled "AI answer". Without an LLM,
+  unmatched searches fall back to a pattern-family guide instead of a dead end.
+- **Search works without an API key:** typed searches and text answers always work.
   Voice (listening + spoken replies) needs a Gnani API key.
 
-## Topics (40)
+## Algorithms (41)
 
 - **Arrays & Searching:** Two Sum, 3Sum, Container With Most Water, Best Time to Buy
   and Sell Stock, Product of Array Except Self, Longest Consecutive Sequence,
@@ -52,6 +85,10 @@ topic list — any DSA question gets an answer.
 - **Dynamic Programming:** Climbing Stairs, House Robber, Coin Change
 - **Sorting:** Quick Sort, Merge Sort
 - **Heap:** Kth Largest Element, Top K Frequent Elements
+- **Math & Number Theory:** Prime Number Check (trial division, √n, 6k±1, Sieve)
+
+Code snippets are the core Java methods (assume `import java.util.*;`), not full
+programs — the key code, as the interface promises.
 
 ## Run it
 
@@ -61,20 +98,22 @@ cp .env.example .env        # paste your Gnani API key (from app.gnani.ai) into 
 python app.py               # open http://127.0.0.1:5000
 ```
 
-Pick your language, tap the mic, and ask — e.g. *"టూ సమ్ ఎలా చేయాలి?"* or
-*"Two sum array mein kaise karte hain?"* — then listen to the answer, ask for it
-simpler, or ask for an example. Or type in the search bar and press **Ask**
-(or Enter), pick a suggestion, or tap any topic card.
+Pick your language, search for an algorithm — e.g. *"prime number"* or *"quicksort"* —
+read the key code and the approaches, then ask a follow-up: tap **"Ask about this
+method"** on any approach, or type/speak a question in the "Ask about this
+algorithm" box. Or tap the mic and ask by voice — e.g. *"టూ సమ్ ఎలా చేయాలి?"*.
 
-Without a key, the app still runs: search, browsing, and text answers work, and a
+Without a key, the app still runs: search, approaches, and text answers work, and a
 banner explains how to turn voice on. Voice needs the key for both Prisma and Timbre.
 
 ## Answering any DSA question (LLM fallback)
 
-The 40 topics above are the curated, checked bank — fast and reliable. For
-everything else, the app asks a language model, so a student is never stuck
-with "pick a topic from the list". Any **OpenAI-compatible chat API** works.
-Add these three lines to `.env` (see `.env.example`):
+The 41 algorithms above are the curated, checked bank — fast and reliable. For
+everything else, the app asks a language model for the same structured shape
+(key logic, approaches with Java code and complexities, one best pick), and
+follow-up questions are answered with the on-screen algorithm as context. Any
+**OpenAI-compatible chat API** works. Add these three lines to `.env`
+(see `.env.example`):
 
 ```
 BOLKE_LLM_BASE_URL=http://localhost:11434/v1
@@ -90,15 +129,16 @@ BOLKE_LLM_API_KEY=
   API key (Ollama Cloud, Groq, OpenRouter, Gemini's OpenAI-compatible
   endpoint, and similar). Confirm the exact base URL and model name in your
   provider's docs — they change, and this README does not hard-code them.
-  Cloud use spends your provider credits/quotas; the bank questions never
+  Cloud use spends your provider credits/quotas; bank questions never
   call the LLM, so only genuinely new questions cost anything.
 - **Off:** leave the three lines empty and the app behaves as before — bank
-  answers plus pattern-family guides. If the LLM is unreachable or errors,
-  the app silently falls back to the family guide instead of breaking.
-- **Trust:** LLM answers are labelled "AI answer" in the chat. They follow
-  the same pattern → why → complexity → trade-off style, but they are
-  generated, so verify anything surprising before an interview. The model is
-  instructed to answer DSA questions only.
+  answers plus pattern-family guides, and follow-ups fall back to the bank's
+  spoken answer for the algorithm. If the LLM is unreachable or errors, the
+  app silently falls back instead of breaking.
+- **Trust:** LLM answers are labelled "AI answer". They follow the same
+  key-logic → approaches → best-pick shape, but they are generated, so verify
+  anything surprising before an interview. The model is instructed to answer
+  DSA questions only, and to return structured JSON for searches.
 
 ## Troubleshooting
 
@@ -111,9 +151,9 @@ BOLKE_LLM_API_KEY=
   line `GNANI_API_KEY=<your key>`, no spaces or quotes. Beware Notepad saving it as
   `.env.txt` — the file must be named exactly `.env`. Restart `python app.py`.
 - **Mic blocked:** allow microphone permission in the browser, or type the question.
-- **"I could not catch that" / family guide:** the question did not match one topic
-  and no LLM is configured (or it failed). Try the topic name itself (e.g. "BFS",
-  "quick sort"), tap a topic card, or configure the LLM fallback above.
+- **A search shows a guide instead of approaches:** the question did not match one
+  algorithm and no LLM is configured (or it failed). Try the algorithm name itself
+  (e.g. "BFS", "quick sort", "prime"), or configure the LLM fallback above.
 - **LLM answers never appear:** check the three `BOLKE_LLM_*` lines in `.env`
   (base URL, model, key if your provider needs one), then restart
   `python app.py` — `.env` is read at startup. A wrong base URL or model name
@@ -124,30 +164,39 @@ BOLKE_LLM_API_KEY=
 
 ## How it works
 
-Browser mic → 16 kHz WAV → **Prisma** (STT, chosen language) → transcript normalised
-(tolerant of native-script and misheard forms) → scored topic match (keyword phrases,
-token overlap, fuzzy topic-name similarity) → curated, pattern-style answer bank →
-**Timbre v2.5** (TTS, answer's language) → spoken reply.
+Search (typed) or voice (mic → 16 kHz WAV → **Prisma** STT) → transcript
+normalised (tolerant of native-script and misheard forms) → scored algorithm
+match (alias phrases, token overlap, fuzzy name similarity) over
+`approaches.py` → key code + approaches + best pick rendered; the
+**Timbre v2.5** spoken summary uses the pattern-style answer bank
+(`answers.py`) when the algorithm has one.
 
-Unmatched questions go to the configured LLM (`llm.py`, any OpenAI-compatible
-chat API) with a system prompt enforcing the same pattern style and the
-student's language; if no LLM is configured or it fails, they fall back to a
+Unmatched searches go to the configured LLM (`llm.py`, any OpenAI-compatible
+chat API), first for the same structured JSON shape, then for a plain answer;
+follow-up questions go to the LLM with the on-screen algorithm and approaches
+as context. If no LLM is configured or it fails, searches fall back to a
 pattern-family guide when the question names a family (trees, graphs, DP,
-sorting, heaps, ...), otherwise to a short message that points at the topic
-browser.
+sorting, heaps, ...), otherwise to a short message; follow-ups fall back to
+the bank's answer for the algorithm.
 
-API: `GET /` (page), `GET /api/topics`, `GET /api/suggest?q=...`,
-`POST /api/ask` (voice, needs key), `POST /api/text` (typed, works without a key),
-`POST /api/followup` (simple/example, works without a key for text). Answer
-payloads carry an `llm` boolean: true when the answer came from the model.
+API: `GET /` (page), `GET /api/suggest?q=...`,
+`POST /api/search` (typed, works without a key; responses include a `summary`
+field — the spoken summary used by the header Listen button),
+`POST /api/ask` (voice, needs key; accepts `algorithm`/`approach`/`approaches`
+for contextual follow-ups), `POST /api/followup` (question about the
+algorithm on screen), `POST /api/speak` (text to speech, needs key).
+Algorithm payloads carry `kind: "algorithm"`, `source` (`bank`/`llm`), and an
+`llm` boolean: true when the content came from the model.
 
 ## Files
 
 - `app.py` — Flask server, Gnani Prisma/Timbre wiring, API routes.
-- `llm.py` — open-ended answers via any OpenAI-compatible chat API (stdlib only).
-- `answers.py` — original 12 topics, matching, family guides, fallbacks.
-- `topics_extra.py` — 28 more topics added in the Nov 16, 2026 rebuild.
-- `templates/index.html` — the whole interface, including its 10-language UI text.
+- `approaches.py` — 41 algorithms: key logic, approaches, Java key code, complexities, best pick, matching.
+- `llm.py` — open-ended structured answers and contextual follow-ups via any OpenAI-compatible chat API (stdlib only).
+- `answers.py` — spoken pattern-style answer bank (12 original topics), matching, family guides, fallbacks.
+- `topics_extra.py` — 28 more spoken-answer topics added in the Nov 16, 2026 rebuild.
+- `templates/index.html` — the whole interface: design tokens, Learning Orb, result
+  views, conversation drawer, voice sheet, and 10-language UI text (110 keys).
 - `requirements.txt` — `flask`, `gnani-vachana`.
 
 Tags: Prisma v2.5 (STT) · Timbre v2.5 (TTS).
