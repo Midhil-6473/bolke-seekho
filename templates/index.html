@@ -5,31 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bolke Seekho — Voice DSA Revision in Your Language</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; background:#0f1220; color:#f2f3f7; }
-  h1 { font-size: 1.5rem; margin-bottom: 4px; }
-  .sub { color:#aab; margin-top:0; }
-  #micBtn { font-size: 1.1rem; padding: 14px 26px; border-radius: 999px; border: 0; background:#ff7847; color:#fff; cursor:pointer; }
-  #micBtn.recording { background:#d33; }
-  #status { min-height: 1.4em; color:#ffd166; }
-  .card { background:#1a1e33; border-radius:12px; padding:14px 16px; margin-top:14px; }
-  .card h3 { margin:0 0 6px; font-size:.95rem; color:#8ecae6; }
-  .chips button, .followups button { margin:4px 4px 0 0; padding:6px 10px; border-radius:999px; border:1px solid #445; background:#232842; color:#dde; cursor:pointer; }
-  .followups button { background:#2c4a2e; border-color:#4a7a4e; }
-  input[type=text], select { width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid #445; background:#12152a; color:#fff; }
-  select { width:auto; min-width: 200px; }
-  audio { width:100%; margin-top:10px; }
-  .warn { color:#ff9f9f; }
-  label { color:#aab; font-size:.9rem; }
+  :root {
+    --bg: #0f1220; --panel: #1a1e33; --panel2: #232842; --line: #3a4066;
+    --ink: #f2f3f7; --muted: #aab0c6; --accent: #ff7847; --accent2: #8ecae6;
+    --good: #7bd88f; --warn: #ffd166; --bad: #ff9f9f;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a { color: var(--accent2); }
+  button, input, select { font: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+
+  .hero { background: linear-gradient(135deg, #ff7847 0%, #c94b7a 55%, #6a5acd 100%); border-radius: 18px; padding: 22px 20px; color: #fff; }
+  .hero h1 { margin: 0 0 6px; font-size: 1.7rem; letter-spacing: -0.01em; }
+  .hero p { margin: 0; opacity: 0.95; }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 4px 12px; font-size: 0.88rem; }
+  .pill.voice-off { background: rgba(0,0,0,0.45); }
+
+  .banner { margin-top: 14px; background: #2a2410; border: 1px solid #6b5a1e; color: var(--warn); border-radius: 12px; padding: 12px 14px; font-size: 0.95rem; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 14px; }
+  .card h2, .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  label { color: var(--muted); font-size: 0.9rem; display: block; margin-bottom: 6px; }
+  select { width: 100%; padding: 11px; border-radius: 10px; border: 1px solid var(--line); background: #12152a; color: #fff; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 8px 0 0; }
+
+  .mic-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  #micBtn { font-size: 1.05rem; padding: 14px 24px; border-radius: 999px; border: 0; background: var(--accent); color: #fff; font-weight: 650; box-shadow: 0 6px 18px rgba(255,120,71,0.35); transition: transform 0.12s ease, background 0.15s ease; }
+  #micBtn:hover:not(:disabled) { transform: translateY(-1px); }
+  #micBtn:disabled { opacity: 0.55; cursor: wait; box-shadow: none; }
+  #micBtn.recording { background: #d33; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(221,51,51,0.55); } 50% { box-shadow: 0 0 0 12px rgba(221,51,51,0); } }
+  .bars { display: none; align-items: flex-end; gap: 3px; height: 28px; }
+  .bars.on { display: inline-flex; }
+  .bars span { width: 5px; background: var(--accent2); border-radius: 3px; animation: bounce 0.7s ease-in-out infinite; }
+  .bars span:nth-child(1) { height: 10px; } .bars span:nth-child(2) { height: 24px; animation-delay: 0.1s; }
+  .bars span:nth-child(3) { height: 16px; animation-delay: 0.2s; } .bars span:nth-child(4) { height: 26px; animation-delay: 0.05s; }
+  .bars span:nth-child(5) { height: 12px; animation-delay: 0.15s; }
+  @keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+  #status { min-height: 1.4em; color: var(--warn); margin: 10px 0 0; }
+  #recTimer { color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { #micBtn.recording, .bars span { animation: none; } }
+
+  .search-row { display: flex; gap: 8px; }
+  .search-wrap { position: relative; flex: 1; min-width: 0; }
+  #textQ { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: #12152a; color: #fff; }
+  #askBtn { padding: 12px 20px; border-radius: 10px; border: 0; background: var(--accent2); color: #0f1220; font-weight: 650; white-space: nowrap; }
+  #askBtn:disabled { opacity: 0.55; cursor: wait; }
+  #clearBtn { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); color: var(--ink); }
+  .suggest-box { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 20; background: #12152a; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+  .suggest-box[hidden] { display: none; }
+  .suggest-box button { display: flex; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; background: transparent; border: 0; border-bottom: 1px solid #22264a; color: var(--ink); }
+  .suggest-box button:last-child { border-bottom: 0; }
+  .suggest-box button:hover, .suggest-box button.active { background: var(--panel2); }
+  .suggest-box .cat { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chips button { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); color: var(--ink); }
+  .chips button[aria-pressed="true"] { background: var(--accent2); color: #0f1220; border-color: var(--accent2); font-weight: 650; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
+  .topic-btn { text-align: left; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel2); color: var(--ink); transition: transform 0.12s ease, border-color 0.15s ease; }
+  .topic-btn:hover { transform: translateY(-1px); border-color: var(--accent2); }
+  .topic-btn .name { display: block; font-weight: 650; }
+  .topic-btn .meta { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .topic-btn.explored { border-color: #4a7a4e; }
+  .topic-btn .done { color: var(--good); font-weight: 700; }
+  .empty-grid { color: var(--muted); margin-top: 12px; }
+  .empty-grid[hidden] { display: none; }
+
+  .error-box { margin-top: 14px; background: #2d1414; border: 1px solid #7a3030; color: #ffd7d7; border-radius: 12px; padding: 12px 14px; }
+  .error-box[hidden] { display: none; }
+  .error-box strong { color: #fff; }
+
+  .chat-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .bubble-q { align-self: flex-end; max-width: 88%; background: #2c4a6e; border-radius: 16px 16px 4px 16px; padding: 10px 14px; }
+  .bubble-q .who { display: block; color: var(--accent2); font-size: 0.82rem; margin-bottom: 2px; }
+  .bubble-a { background: var(--panel); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 14px 16px; }
+  .bubble-a .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .tag { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 0.82rem; color: var(--muted); }
+  .tag.topic { color: var(--accent2); border-color: #2c4a6e; }
+  .bubble-a p.answer { margin: 0; white-space: pre-wrap; }
+  .bubble-a audio { width: 100%; margin-top: 10px; }
+  .note { color: var(--warn); font-size: 0.9rem; margin-top: 8px; }
+  .note.bad { color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .actions button { padding: 7px 13px; border-radius: 999px; border: 1px solid #4a7a4e; background: #22331f; color: #dff0dc; }
+  .actions button.secondary { border-color: var(--line); background: var(--panel2); color: var(--ink); }
+  .actions button:disabled { opacity: 0.55; cursor: wait; }
+  .try-next { margin-top: 12px; color: var(--muted); font-size: 0.9rem; }
+  .try-next .chips { margin-top: 6px; }
+  .chat-empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; padding: 16px; text-align: center; }
+  footer { margin-top: 20px; color: var(--muted); font-size: 0.9rem; text-align: center; }
 </style>
 </head>
-<body>
-  <h1>🎙️ Bolke Seekho</h1>
-  <p class="sub">DSA revision in <b>your</b> language — bolo, suno, samjho. Ask in any of 10 Indian languages; answers come back by voice (Gnani <b>Prisma</b> + <b>Timbre</b>) in Hinglish, English, Telugu, Tamil, Kannada and Malayalam.</p>
+<body data-key-set="{{ '1' if key_set else '0' }}">
+  <header class="hero">
+    <h1>🎙️ <span data-i18n="appTitle">Bolke Seekho</span></h1>
+    <p data-i18n="subtitle">Voice ya search se DSA doubt poochho — pattern, wajah, complexity aur trade-off, tumhari bhasha mein.</p>
+    <div class="stats">
+      <span class="pill" id="statTopics"></span>
+      <span class="pill" id="statVoice"></span>
+    </div>
+  </header>
 
-  {% if not key_set %}<p class="warn">⚠️ GNANI_API_KEY is not set. Add it to the .env file and restart the app.</p>{% endif %}
+  {% if not key_set %}
+  <div class="banner" role="note" data-i18n="noKeyBanner">Voice band hai: Gnani API key nahi mili. Search aur browsing chalenge. Voice on karne ke liye app.py ke paas .env file mein GNANI_API_KEY add karo aur restart karo.</div>
+  {% endif %}
 
-  <p>
-    <label for="langSel">Question language / प्रश्न की भाषा:</label><br>
+  <section class="card" aria-label="Language">
+    <label for="langSel" data-i18n="langLabel">Apni bhasha chuno</label>
     <select id="langSel">
       <option value="hinglish" selected>Hinglish (हिंदी + English)</option>
       <option value="english">English</option>
@@ -37,76 +122,759 @@
       <option value="tamil">Tamil (தமிழ்)</option>
       <option value="kannada">Kannada (ಕನ್ನಡ)</option>
       <option value="malayalam">Malayalam (മലയാളം)</option>
-      <option value="marathi">Marathi (मराठी) — answers in English</option>
-      <option value="bengali">Bengali (বাংলা) — answers in English</option>
-      <option value="gujarati">Gujarati (ગુજરાતી) — answers in English</option>
-      <option value="punjabi">Punjabi (ਪੰਜਾਬੀ) — answers in English</option>
+      <option value="marathi">Marathi (मराठी)</option>
+      <option value="bengali">Bengali (বাংলা)</option>
+      <option value="gujarati">Gujarati (ગુજરાતી)</option>
+      <option value="punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
     </select>
-  </p>
+    <p class="hint" data-i18n="langNote">Voice answers: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. Doosri bhashaon ke sawal samjhe jayenge, jawab English mein milega.</p>
+  </section>
 
-  <button id="micBtn">🎤 Bolna shuru karo</button>
-  <p id="status"></p>
-
-  <div class="card">
-    <h3>Sample sawal (tap karke bhi pooch sakte ho)</h3>
-    <div class="chips">
-      <button data-q="Two sum array mein kaise karte hain?">Two Sum</button>
-      <button data-q="3Sum ka pattern kya hai?">3Sum</button>
-      <button data-q="Container with most water samjhao">Container With Most Water</button>
-      <button data-q="Stock kab kharidein aur kab bechein, max profit ke liye?">Buy &amp; Sell Stock</button>
-      <button data-q="Product of array except self bina division ke kaise hoga?">Product Except Self</button>
-      <button data-q="Prefix sum se subarray sum equals k kaise nikalta hai?">Prefix Sum</button>
-      <button data-q="Longest substring bina repeat characters ke?">Longest Substring</button>
-      <button data-q="Valid anagram kaise check karte hain?">Valid Anagram</button>
+  <section class="card" aria-label="Voice question">
+    <div class="mic-row">
+      <button id="micBtn" aria-pressed="false">🎤 <span data-i18n="micStart">Bolna shuru karo</span></button>
+      <span class="bars" id="bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+      <span id="recTimer"></span>
     </div>
-  </div>
+    <p id="status" aria-live="polite"></p>
+  </section>
 
-  <div class="card">
-    <h3>Ya sawal type karo (apni language mein)</h3>
-    <input type="text" id="textQ" placeholder="e.g. Move zeroes end mein kaise le jaate hain?">
-  </div>
+  <section class="card" aria-label="Search">
+    <form id="searchForm" novalidate>
+      <label for="textQ" data-i18n="searchLabel">Ya sawal type karo</label>
+      <div class="search-row">
+        <div class="search-wrap">
+          <input type="text" id="textQ" autocomplete="off" spellcheck="false"
+                 role="combobox" aria-expanded="false" aria-controls="suggestBox" aria-autocomplete="list"
+                 data-i18n-ph="searchPlaceholder" placeholder="Sawal type karo, jaise: Linked list reverse kaise karein?">
+          <div class="suggest-box" id="suggestBox" role="listbox" hidden></div>
+        </div>
+        <button type="submit" id="askBtn" data-i18n="askButton">Poochho</button>
+        <button type="button" id="clearBtn" data-i18n="clearButton">Saaf karo</button>
+      </div>
+    </form>
+    <p class="hint" data-i18n="searchHint">Tip: neeche topic par tap karo, ya aadha sawal likh ke suggestion chuno.</p>
+  </section>
 
-  <div class="card" id="resultCard" style="display:none">
-    <h3>Tumne poochha</h3>
-    <p id="transcript"></p>
-    <h3>Jawab — <span id="topic"></span></h3>
-    <p id="answer"></p>
-    <audio id="player" controls></audio>
-    <p id="ttsError" class="warn"></p>
-    <div class="followups" id="followups" style="display:none">
-      <h3>Clarify karo</h3>
-      <button id="btnSimple">🪶 Aur simple mein samjhao</button>
-      <button id="btnExample">🔢 Ek example do</button>
+  <section class="card" aria-label="Browse topics">
+    <h2 data-i18n="browseTitle">Topics dekho</h2>
+    <div class="chips" id="catChips" role="group" aria-label="Categories">
+      <button type="button" data-category="__all" aria-pressed="true" data-i18n="allLabel">Sab</button>
+      {% for category in categories %}
+      <button type="button" data-category="{{ category }}" aria-pressed="false">{{ category }}</button>
+      {% endfor %}
     </div>
-  </div>
+    <div class="grid" id="topicGrid">
+      {% for t in topics %}
+      <button type="button" class="topic-btn" data-topic="{{ t.topic }}" data-category="{{ t.category }}">
+        <span class="name">{{ t.topic }}</span>
+        <span class="meta">{{ t.category }} · {{ t.difficulty }}</span>
+      </button>
+      {% endfor %}
+    </div>
+    <p class="empty-grid" id="emptyGrid" hidden>No topics in this category.</p>
+  </section>
+
+  <div class="error-box" id="errorBox" role="alert" hidden></div>
+
+  <section class="card" aria-label="Revision chat">
+    <h2 data-i18n="chatTitle">Tumhari revision chat</h2>
+    <div class="chat-empty" id="chatEmpty" data-i18n="chatEmpty">Upar voice ya search se poochho — tumhare sawal aur jawab yahan dikhenge.</div>
+    <div class="chat-list" id="chatList"></div>
+  </section>
+
+  <footer data-i18n="footerNote">Gnani Prisma (speech-to-text) aur Timbre (text-to-speech) se bana hai. Jawab pattern, wajah, complexity aur trade-off sikhate hain.</footer>
 
 <script>
-const micBtn = document.getElementById('micBtn');
-const statusEl = document.getElementById('status');
-const langSel = document.getElementById('langSel');
-let mediaRecorder = null, streamRef = null, audioCtx = null;
-let currentTopic = '';
+const TOPICS = {{ topics|tojson }};
+const KEY_SET = document.body.dataset.keySet === '1';
+const HTML_LANG = { hinglish: 'hi', english: 'en', telugu: 'te', tamil: 'ta', kannada: 'kn', malayalam: 'ml', marathi: 'mr', bengali: 'bn', gujarati: 'gu', punjabi: 'pa' };
 
-async function startRecording() {
-  streamRef = await navigator.mediaDevices.getUserMedia({ audio: true });
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const source = audioCtx.createMediaStreamSource(streamRef);
-  const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-  const buffers = [];
-  processor.onaudioprocess = e => buffers.push(new Float32Array(e.inputBuffer.getChannelData(0)));
-  source.connect(processor); processor.connect(audioCtx.destination);
-  mediaRecorder = { buffers, processor, source, sampleRate: audioCtx.sampleRate };
-  micBtn.textContent = '⏹️ Ruko aur jawab suno';
-  micBtn.classList.add('recording');
-  statusEl.textContent = 'Sun raha hoon… bolo!';
+// Full interface translation. Topic and category names stay in English:
+// students say "linked list", "DP", "binary search" in English in every
+// language. Everything else on screen — labels, buttons, hints, banners,
+// status messages — translates the moment the language changes.
+const I18N = {
+  hinglish: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice ya search se DSA doubt poochho — pattern, wajah, complexity aur trade-off, tumhari bhasha mein.',
+    langLabel: 'Apni bhasha chuno',
+    langNote: 'Voice answers: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. Doosri bhashaon ke sawal samjhe jayenge, jawab English mein milega.',
+    micStart: 'Bolna shuru karo',
+    micStop: 'Ruko aur jawab suno',
+    listening: 'Sun raha hoon… bolo!',
+    thinking: 'Pattern dhoondh raha hoon…',
+    sttWorking: 'Prisma sun raha hai…',
+    voiceWorking: 'Bol kar jawab taiyaar ho raha hai…',
+    searchLabel: 'Ya sawal type karo',
+    searchPlaceholder: 'Sawal type karo, jaise: Linked list reverse kaise karein?',
+    askButton: 'Poochho',
+    clearButton: 'Saaf karo',
+    searchHint: 'Tip: neeche topic par tap karo, ya aadha sawal likh ke suggestion chuno.',
+    browseTitle: 'Topics dekho',
+    allLabel: 'Sab',
+    chatTitle: 'Tumhari revision chat',
+    chatEmpty: 'Upar voice ya search se poochho — tumhare sawal aur jawab yahan dikhenge.',
+    youLabel: 'Tumne poochha',
+    simplerButton: 'Aur simple mein samjhao',
+    exampleButton: 'Ek example do',
+    replayButton: 'Voice dobara suno',
+    copyButton: 'Jawab copy karo',
+    copiedLabel: 'Copy ho gaya!',
+    tryNext: 'Aage try karo:',
+    exploredLabel: 'dekhe',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key nahi hai)',
+    voiceOffNote: 'Voice band hai — jawab sunne ke liye Gnani API key add karo. Text jawab phir bhi chalenge.',
+    noKeyBanner: 'Voice band hai: Gnani API key nahi mili. Search aur browsing chalenge. Voice on karne ke liye app.py ke paas .env file mein GNANI_API_KEY add karo aur restart karo.',
+    errorTitle: 'Kuch gadbad ho gayi',
+    micDenied: 'Mic ki permission blocked hai. Browser mein mic allow karo, ya sawal type karo.',
+    micMissing: 'Is browser mein mic nahi mila. Sawal type karke poochho.',
+    networkError: 'App server se connect nahi ho paya. Kya python app.py chal raha hai? Terminal check karo aur dobara try karo.',
+    emptyQuestion: 'Pehle sawal type karo ya topic chuno.',
+    followupWorking: 'Clarify kar raha hoon…',
+    footerNote: 'Gnani Prisma (speech-to-text) aur Timbre (text-to-speech) se bana hai. Jawab pattern, wajah, complexity aur trade-off sikhate hain.'
+  },
+  english: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Ask a DSA doubt by voice or search — get the pattern, why it works, and the trade-off, in your language.',
+    langLabel: 'Choose your language',
+    langNote: 'Voice answers: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. Other languages are understood and answered in English for now.',
+    micStart: 'Tap to speak',
+    micStop: 'Stop and listen',
+    listening: 'Listening… speak now!',
+    thinking: 'Finding the pattern…',
+    sttWorking: 'Listening with Prisma…',
+    voiceWorking: 'Preparing your spoken answer…',
+    searchLabel: 'Or type your question',
+    searchPlaceholder: 'Ask a DSA doubt, e.g. Reverse a linked list?',
+    askButton: 'Ask',
+    clearButton: 'Clear',
+    searchHint: 'Tip: tap a topic below, or type part of a question and pick a suggestion.',
+    browseTitle: 'Browse topics',
+    allLabel: 'All',
+    chatTitle: 'Your revision chat',
+    chatEmpty: 'Ask by voice or search above — your questions and answers will appear here.',
+    youLabel: 'You asked',
+    simplerButton: 'Explain simpler',
+    exampleButton: 'Give an example',
+    replayButton: 'Replay voice',
+    copyButton: 'Copy answer',
+    copiedLabel: 'Copied!',
+    tryNext: 'Try next:',
+    exploredLabel: 'explored',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (no API key)',
+    voiceOffNote: 'Voice is off — add a Gnani API key to hear answers. Text answers still work.',
+    noKeyBanner: 'Voice is off: no Gnani API key found. Search and browsing still work. To turn voice on, add GNANI_API_KEY to the .env file next to app.py and restart.',
+    errorTitle: 'Something went wrong',
+    micDenied: 'Microphone access was blocked. Allow mic permission in the browser, or type the question instead.',
+    micMissing: 'No microphone found in this browser. Type the question instead.',
+    networkError: 'Could not reach the app server. Is python app.py running? Check the terminal and try again.',
+    emptyQuestion: 'Type a question or pick a topic first.',
+    followupWorking: 'Getting a clearer version…',
+    footerNote: 'Built with Gnani Prisma (speech-to-text) and Timbre (text-to-speech). Answers teach the pattern, why it works, complexity, and trade-offs.'
+  },
+  telugu: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice లేదా search తో DSA doubt అడగండి — pattern, కారణం, complexity, trade-off, మీ భాషలో.',
+    langLabel: 'మీ భాష ఎంచుకోండి',
+    langNote: 'Voice సమాధానాలు: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. మిగిలిన భాషల ప్రశ్నలు అర్థమవుతాయి, సమాధానం English లో వస్తుంది.',
+    micStart: 'మాట్లాడటానికి నొక్కండి',
+    micStop: 'ఆపి సమాధానం వినండి',
+    listening: 'వింటున్నాను… మాట్లాడండి!',
+    thinking: 'Pattern వెతుకుతున్నాను…',
+    sttWorking: 'Prisma వింటోంది…',
+    voiceWorking: 'Voice సమాధానం తయారవుతోంది…',
+    searchLabel: 'లేదా ప్రశ్న type చేయండి',
+    searchPlaceholder: 'Doubt అడగండి, ఉదా: Linked list reverse ఎలా?',
+    askButton: 'అడగండి',
+    clearButton: 'Clear చేయండి',
+    searchHint: 'Tip: కింద topic నొక్కండి, లేదా సగం ప్రశ్న రాసి suggestion ఎంచుకోండి.',
+    browseTitle: 'Topics చూడండి',
+    allLabel: 'అన్నీ',
+    chatTitle: 'మీ revision chat',
+    chatEmpty: 'పైన voice లేదా search తో అడగండి — మీ ప్రశ్నలు, సమాధానాలు ఇక్కడ కనిపిస్తాయి.',
+    youLabel: 'మీరు అడిగారు',
+    simplerButton: 'ఇంకా సులభంగా చెప్పండి',
+    exampleButton: 'ఒక example ఇవ్వండి',
+    replayButton: 'Voice మళ్ళీ వినండి',
+    copyButton: 'సమాధానం copy చేయండి',
+    copiedLabel: 'Copy అయింది!',
+    tryNext: 'తర్వాత try చేయండి:',
+    exploredLabel: 'చూసినవి',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key లేదు)',
+    voiceOffNote: 'Voice off లో ఉంది — సమాధానాలు వినాలంటే Gnani API key add చేయండి. Text సమాధానాలు పనిచేస్తాయి.',
+    noKeyBanner: 'Voice off: Gnani API key దొరకలేదు. Search, browsing పనిచేస్తాయి. Voice on చేయాలంటే app.py పక్కన .env file లో GNANI_API_KEY add చేసి restart చేయండి.',
+    errorTitle: 'ఏదో తప్పు జరిగింది',
+    micDenied: 'Mic permission block అయింది. Browser లో mic allow చేయండి, లేదా ప్రశ్న type చేయండి.',
+    micMissing: 'ఈ browser లో mic దొరకలేదు. ప్రశ్న type చేసి అడగండి.',
+    networkError: 'App server కి connect కాలేదు. python app.py నడుస్తోందా? Terminal check చేసి మళ్ళీ try చేయండి.',
+    emptyQuestion: 'ముందు ప్రశ్న type చేయండి లేదా topic ఎంచుకోండి.',
+    followupWorking: 'సులభమైన version తెస్తున్నాను…',
+    footerNote: 'Gnani Prisma (speech-to-text), Timbre (text-to-speech) తో తయారైంది. సమాధానాలు pattern, కారణం, complexity, trade-off నేర్పుతాయి.'
+  },
+  tamil: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice அல்லது search மூலம் DSA doubt கேளுங்கள் — pattern, காரணம், complexity, trade-off, உங்கள் மொழியில்.',
+    langLabel: 'உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்',
+    langNote: 'Voice பதில்கள்: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. மற்ற மொழிக் கேள்விகள் புரியும், பதில் English-ல் வரும்.',
+    micStart: 'பேச தட்டவும்',
+    micStop: 'நிறுத்தி பதிலைக் கேளுங்கள்',
+    listening: 'கேட்கிறேன்… பேசுங்கள்!',
+    thinking: 'Pattern தேடுகிறேன்…',
+    sttWorking: 'Prisma கேட்கிறது…',
+    voiceWorking: 'Voice பதில் தயாராகிறது…',
+    searchLabel: 'அல்லது கேள்வியை type செய்யுங்கள்',
+    searchPlaceholder: 'Doubt கேளுங்கள், எ.கா: Linked list reverse எப்படி?',
+    askButton: 'கேளுங்கள்',
+    clearButton: 'Clear செய்யுங்கள்',
+    searchHint: 'Tip: கீழே topic-ஐ தட்டவும், அல்லது பாதி கேள்வி எழுதி suggestion தேர்ந்தெடுக்கவும்.',
+    browseTitle: 'Topics பாருங்கள்',
+    allLabel: 'அனைத்தும்',
+    chatTitle: 'உங்கள் revision chat',
+    chatEmpty: 'மேலே voice அல்லது search மூலம் கேளுங்கள் — உங்கள் கேள்விகளும் பதில்களும் இங்கே தோன்றும்.',
+    youLabel: 'நீங்கள் கேட்டீர்கள்',
+    simplerButton: 'இன்னும் எளிமையாக விளக்குங்கள்',
+    exampleButton: 'ஒரு example தாருங்கள்',
+    replayButton: 'Voice மீண்டும் கேளுங்கள்',
+    copyButton: 'பதிலை copy செய்யுங்கள்',
+    copiedLabel: 'Copy ஆனது!',
+    tryNext: 'அடுத்து try செய்யுங்கள்:',
+    exploredLabel: 'பார்த்தவை',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key இல்லை)',
+    voiceOffNote: 'Voice off-ல் உள்ளது — பதில்களைக் கேட்க Gnani API key சேர்க்கவும். Text பதில்கள் வேலை செய்யும்.',
+    noKeyBanner: 'Voice off: Gnani API key கிடைக்கவில்லை. Search, browsing வேலை செய்யும். Voice on செய்ய app.py அருகில் .env file-ல் GNANI_API_KEY சேர்த்து restart செய்யுங்கள்.',
+    errorTitle: 'ஏதோ தவறு நடந்தது',
+    micDenied: 'Mic permission block ஆனது. Browser-ல் mic allow செய்யுங்கள், அல்லது கேள்வியை type செய்யுங்கள்.',
+    micMissing: 'இந்த browser-ல் mic கிடைக்கவில்லை. கேள்வியை type செய்து கேளுங்கள்.',
+    networkError: 'App server-ஐ அணுக முடியவில்லை. python app.py இயங்குகிறதா? Terminal-ஐ check செய்து மீண்டும் try செய்யுங்கள்.',
+    emptyQuestion: 'முதலில் கேள்வியை type செய்யுங்கள் அல்லது topic தேர்ந்தெடுக்கவும்.',
+    followupWorking: 'எளிமையான version எடுக்கிறேன்…',
+    footerNote: 'Gnani Prisma (speech-to-text), Timbre (text-to-speech) கொண்டு உருவாக்கப்பட்டது. பதில்கள் pattern, காரணம், complexity, trade-off கற்பிக்கும்.'
+  },
+  kannada: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice ಅಥವಾ search ಮೂಲಕ DSA doubt ಕೇಳಿ — pattern, ಕಾರಣ, complexity, trade-off, ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ.',
+    langLabel: 'ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆರಿಸಿ',
+    langNote: 'Voice ಉತ್ತರಗಳು: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. ಇತರ ಭಾಷೆಗಳ ಪ್ರಶ್ನೆಗಳು ಅರ್ಥವಾಗುತ್ತವೆ, ಉತ್ತರ English ನಲ್ಲಿ ಬರುತ್ತದೆ.',
+    micStart: 'ಮಾತನಾಡಲು ಒತ್ತಿ',
+    micStop: 'ನಿಲ್ಲಿಸಿ ಉತ್ತರ ಕೇಳಿ',
+    listening: 'ಕೇಳುತ್ತಿದ್ದೇನೆ… ಮಾತನಾಡಿ!',
+    thinking: 'Pattern ಹುಡುಕುತ್ತಿದ್ದೇನೆ…',
+    sttWorking: 'Prisma ಕೇಳುತ್ತಿದೆ…',
+    voiceWorking: 'Voice ಉತ್ತರ ತಯಾರಾಗುತ್ತಿದೆ…',
+    searchLabel: 'ಅಥವಾ ಪ್ರಶ್ನೆಯನ್ನು type ಮಾಡಿ',
+    searchPlaceholder: 'Doubt ಕೇಳಿ, ಉದಾ: Linked list reverse ಹೇಗೆ?',
+    askButton: 'ಕೇಳಿ',
+    clearButton: 'Clear ಮಾಡಿ',
+    searchHint: 'Tip: ಕೆಳಗೆ topic ಒತ್ತಿ, ಅಥವಾ ಅರ್ಧ ಪ್ರಶ್ನೆ ಬರೆದು suggestion ಆರಿಸಿ.',
+    browseTitle: 'Topics ನೋಡಿ',
+    allLabel: 'ಎಲ್ಲಾ',
+    chatTitle: 'ನಿಮ್ಮ revision chat',
+    chatEmpty: 'ಮೇಲೆ voice ಅಥವಾ search ಮೂಲಕ ಕೇಳಿ — ನಿಮ್ಮ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಉತ್ತರಗಳು ಇಲ್ಲಿ ಕಾಣುತ್ತವೆ.',
+    youLabel: 'ನೀವು ಕೇಳಿದ್ದು',
+    simplerButton: 'ಇನ್ನೂ ಸರಳವಾಗಿ ವಿವರಿಸಿ',
+    exampleButton: 'ಒಂದು example ಕೊಡಿ',
+    replayButton: 'Voice ಮತ್ತೆ ಕೇಳಿ',
+    copyButton: 'ಉತ್ತರ copy ಮಾಡಿ',
+    copiedLabel: 'Copy ಆಯಿತು!',
+    tryNext: 'ಮುಂದೆ try ಮಾಡಿ:',
+    exploredLabel: 'ನೋಡಿದ್ದು',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key ಇಲ್ಲ)',
+    voiceOffNote: 'Voice off ಆಗಿದೆ — ಉತ್ತರಗಳನ್ನು ಕೇಳಲು Gnani API key ಸೇರಿಸಿ. Text ಉತ್ತರಗಳು ಕೆಲಸ ಮಾಡುತ್ತವೆ.',
+    noKeyBanner: 'Voice off: Gnani API key ಸಿಗಲಿಲ್ಲ. Search, browsing ಕೆಲಸ ಮಾಡುತ್ತವೆ. Voice on ಮಾಡಲು app.py ಪಕ್ಕದ .env file ನಲ್ಲಿ GNANI_API_KEY ಸೇರಿಸಿ restart ಮಾಡಿ.',
+    errorTitle: 'ಏನೋ ತಪ್ಪಾಗಿದೆ',
+    micDenied: 'Mic permission block ಆಗಿದೆ. Browser ನಲ್ಲಿ mic allow ಮಾಡಿ, ಅಥವಾ ಪ್ರಶ್ನೆಯನ್ನು type ಮಾಡಿ.',
+    micMissing: 'ಈ browser ನಲ್ಲಿ mic ಸಿಗಲಿಲ್ಲ. ಪ್ರಶ್ನೆಯನ್ನು type ಮಾಡಿ ಕೇಳಿ.',
+    networkError: 'App server ಗೆ ಸಂಪರ್ಕ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. python app.py ಚಾಲನೆಯಲ್ಲಿದೆಯೇ? Terminal ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ try ಮಾಡಿ.',
+    emptyQuestion: 'ಮೊದಲು ಪ್ರಶ್ನೆಯನ್ನು type ಮಾಡಿ ಅಥವಾ topic ಆರಿಸಿ.',
+    followupWorking: 'ಸರಳ version ತರುತ್ತಿದ್ದೇನೆ…',
+    footerNote: 'Gnani Prisma (speech-to-text), Timbre (text-to-speech) ಜೊತೆ ತಯಾರಾಗಿದೆ. ಉತ್ತರಗಳು pattern, ಕಾರಣ, complexity, trade-off ಕಲಿಸುತ್ತವೆ.'
+  },
+  malayalam: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice അല്ലെങ്കിൽ search വഴി DSA doubt ചോദിക്കൂ — pattern, കാരണം, complexity, trade-off, നിങ്ങളുടെ ഭാഷയിൽ.',
+    langLabel: 'നിങ്ങളുടെ ഭാഷ തിരഞ്ഞെടുക്കുക',
+    langNote: 'Voice ഉത്തരങ്ങൾ: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. മറ്റ് ഭാഷകളിലെ ചോദ്യങ്ങൾ മനസ്സിലാകും, ഉത്തരം English-ൽ വരും.',
+    micStart: 'സംസാരിക്കാൻ ടാപ്പ് ചെയ്യുക',
+    micStop: 'നിർത്തി ഉത്തരം കേൾക്കുക',
+    listening: 'കേൾക്കുന്നു… സംസാരിക്കൂ!',
+    thinking: 'Pattern തിരയുന്നു…',
+    sttWorking: 'Prisma കേൾക്കുന്നു…',
+    voiceWorking: 'Voice ഉത്തരം തയ്യാറാകുന്നു…',
+    searchLabel: 'അല്ലെങ്കിൽ ചോദ്യം type ചെയ്യുക',
+    searchPlaceholder: 'Doubt ചോദിക്കൂ, ഉദാ: Linked list reverse എങ്ങനെ?',
+    askButton: 'ചോദിക്കൂ',
+    clearButton: 'Clear ചെയ്യുക',
+    searchHint: 'Tip: താഴെ topic ടാപ്പ് ചെയ്യുക, അല്ലെങ്കിൽ പകുതി ചോദ്യം എഴുതി suggestion തിരഞ്ഞെടുക്കുക.',
+    browseTitle: 'Topics കാണുക',
+    allLabel: 'എല്ലാം',
+    chatTitle: 'നിങ്ങളുടെ revision chat',
+    chatEmpty: 'മുകളിൽ voice അല്ലെങ്കിൽ search വഴി ചോദിക്കൂ — നിങ്ങളുടെ ചോദ്യങ്ങളും ഉത്തരങ്ങളും ഇവിടെ കാണാം.',
+    youLabel: 'നിങ്ങൾ ചോദിച്ചത്',
+    simplerButton: 'കൂടുതൽ ലളിതമായി വിശദീകരിക്കൂ',
+    exampleButton: 'ഒരു example തരൂ',
+    replayButton: 'Voice വീണ്ടും കേൾക്കുക',
+    copyButton: 'ഉത്തരം copy ചെയ്യുക',
+    copiedLabel: 'Copy ആയി!',
+    tryNext: 'അടുത്തത് try ചെയ്യൂ:',
+    exploredLabel: 'കണ്ടത്',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key ഇല്ല)',
+    voiceOffNote: 'Voice off ആണ് — ഉത്തരങ്ങൾ കേൾക്കാൻ Gnani API key ചേർക്കുക. Text ഉത്തരങ്ങൾ പ്രവർത്തിക്കും.',
+    noKeyBanner: 'Voice off: Gnani API key കിട്ടിയില്ല. Search, browsing പ്രവർത്തിക്കും. Voice on ആക്കാൻ app.py-യുടെ അടുത്തുള്ള .env file-ൽ GNANI_API_KEY ചേർത്ത് restart ചെയ്യുക.',
+    errorTitle: 'എന്തോ തെറ്റായി',
+    micDenied: 'Mic permission block ആയി. Browser-ൽ mic allow ചെയ്യുക, അല്ലെങ്കിൽ ചോദ്യം type ചെയ്യുക.',
+    micMissing: 'ഈ browser-ൽ mic കിട്ടിയില്ല. ചോദ്യം type ചെയ്ത് ചോദിക്കൂ.',
+    networkError: 'App server-ലേക്ക് എത്താൻ കഴിഞ്ഞില്ല. python app.py പ്രവർത്തിക്കുന്നുണ്ടോ? Terminal പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.',
+    emptyQuestion: 'ആദ്യം ചോദ്യം type ചെയ്യുക അല്ലെങ്കിൽ topic തിരഞ്ഞെടുക്കുക.',
+    followupWorking: 'ലളിതമായ version എടുക്കുന്നു…',
+    footerNote: 'Gnani Prisma (speech-to-text), Timbre (text-to-speech) എന്നിവ കൊണ്ട് നിർമ്മിച്ചത്. ഉത്തരങ്ങൾ pattern, കാരണം, complexity, trade-off പഠിപ്പിക്കുന്നു.'
+  },
+  marathi: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice किंवा search ने DSA शंका विचारा — pattern, कारण, complexity आणि trade-off, तुमच्या भाषेत.',
+    langLabel: 'तुमची भाषा निवडा',
+    langNote: 'Voice उत्तरे: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. इतर भाषांचे प्रश्न समजतील, उत्तर English मध्ये येईल.',
+    micStart: 'बोलण्यासाठी टॅप करा',
+    micStop: 'थांबा आणि उत्तर ऐका',
+    listening: 'ऐकत आहे… बोला!',
+    thinking: 'Pattern शोधत आहे…',
+    sttWorking: 'Prisma ऐकत आहे…',
+    voiceWorking: 'Voice उत्तर तयार होत आहे…',
+    searchLabel: 'किंवा प्रश्न type करा',
+    searchPlaceholder: 'शंका विचारा, उदा: Linked list reverse कशी करावी?',
+    askButton: 'विचारा',
+    clearButton: 'Clear करा',
+    searchHint: 'Tip: खाली topic वर टॅप करा, किंवा अर्धा प्रश्न लिहून suggestion निवडा.',
+    browseTitle: 'Topics पहा',
+    allLabel: 'सर्व',
+    chatTitle: 'तुमची revision chat',
+    chatEmpty: 'वर voice किंवा search ने विचारा — तुमचे प्रश्न आणि उत्तरे इथे दिसतील.',
+    youLabel: 'तुम्ही विचारले',
+    simplerButton: 'अजून सोप्या पद्धतीने समजावा',
+    exampleButton: 'एक example द्या',
+    replayButton: 'Voice पुन्हा ऐका',
+    copyButton: 'उत्तर copy करा',
+    copiedLabel: 'Copy झाले!',
+    tryNext: 'पुढे try करा:',
+    exploredLabel: 'पाहिलेले',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key नाही)',
+    voiceOffNote: 'Voice बंद आहे — उत्तरे ऐकण्यासाठी Gnani API key add करा. Text उत्तरे चालतील.',
+    noKeyBanner: 'Voice बंद: Gnani API key सापडली नाही. Search आणि browsing चालतील. Voice चालू करण्यासाठी app.py जवळील .env file मध्ये GNANI_API_KEY add करा आणि restart करा.',
+    errorTitle: 'काहीतरी चुकले',
+    micDenied: 'Mic ची permission blocked आहे. Browser मध्ये mic allow करा, किंवा प्रश्न type करा.',
+    micMissing: 'या browser मध्ये mic सापडला नाही. प्रश्न type करून विचारा.',
+    networkError: 'App server शी connect होऊ शकले नाही. python app.py चालू आहे का? Terminal तपासा आणि पुन्हा प्रयत्न करा.',
+    emptyQuestion: 'आधी प्रश्न type करा किंवा topic निवडा.',
+    followupWorking: 'सोपे version आणत आहे…',
+    footerNote: 'Gnani Prisma (speech-to-text) आणि Timbre (text-to-speech) ने बनवले आहे. उत्तरे pattern, कारण, complexity आणि trade-off शिकवतात.'
+  },
+  bengali: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice বা search দিয়ে DSA সন্দেহ জিজ্ঞাসা করুন — pattern, কারণ, complexity ও trade-off, আপনার ভাষায়।',
+    langLabel: 'আপনার ভাষা বেছে নিন',
+    langNote: 'Voice উত্তর: Hinglish, English, Telugu, Tamil, Kannada, Malayalam। অন্য ভাষার প্রশ্ন বোঝা যাবে, উত্তর English-এ আসবে।',
+    micStart: 'বলতে ট্যাপ করুন',
+    micStop: 'থামুন এবং উত্তর শুনুন',
+    listening: 'শুনছি… বলুন!',
+    thinking: 'Pattern খুঁজছি…',
+    sttWorking: 'Prisma শুনছে…',
+    voiceWorking: 'Voice উত্তর তৈরি হচ্ছে…',
+    searchLabel: 'বা প্রশ্ন type করুন',
+    searchPlaceholder: 'সন্দেহ জিজ্ঞাসা করুন, যেমন: Linked list reverse কীভাবে?',
+    askButton: 'জিজ্ঞাসা করুন',
+    clearButton: 'Clear করুন',
+    searchHint: 'Tip: নিচে topic-এ ট্যাপ করুন, বা অর্ধেক প্রশ্ন লিখে suggestion বেছে নিন।',
+    browseTitle: 'Topics দেখুন',
+    allLabel: 'সব',
+    chatTitle: 'আপনার revision chat',
+    chatEmpty: 'উপরে voice বা search দিয়ে জিজ্ঞাসা করুন — আপনার প্রশ্ন ও উত্তর এখানে দেখা যাবে।',
+    youLabel: 'আপনি জিজ্ঞাসা করেছেন',
+    simplerButton: 'আরও সহজে বোঝান',
+    exampleButton: 'একটি example দিন',
+    replayButton: 'Voice আবার শুনুন',
+    copyButton: 'উত্তর copy করুন',
+    copiedLabel: 'Copy হয়েছে!',
+    tryNext: 'এরপর try করুন:',
+    exploredLabel: 'দেখা হয়েছে',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key নেই)',
+    voiceOffNote: 'Voice বন্ধ — উত্তর শুনতে Gnani API key যোগ করুন। Text উত্তর কাজ করবে।',
+    noKeyBanner: 'Voice বন্ধ: Gnani API key পাওয়া যায়নি। Search ও browsing কাজ করবে। Voice চালু করতে app.py-এর পাশে .env file-এ GNANI_API_KEY যোগ করে restart করুন।',
+    errorTitle: 'কিছু ভুল হয়েছে',
+    micDenied: 'Mic-এর permission block হয়েছে। Browser-এ mic allow করুন, বা প্রশ্ন type করুন।',
+    micMissing: 'এই browser-এ mic পাওয়া যায়নি। প্রশ্ন type করে জিজ্ঞাসা করুন।',
+    networkError: 'App server-এ পৌঁছানো যায়নি। python app.py কি চলছে? Terminal দেখে আবার চেষ্টা করুন।',
+    emptyQuestion: 'আগে প্রশ্ন type করুন বা topic বেছে নিন।',
+    followupWorking: 'সহজ version আনছি…',
+    footerNote: 'Gnani Prisma (speech-to-text) ও Timbre (text-to-speech) দিয়ে তৈরি। উত্তর pattern, কারণ, complexity ও trade-off শেখায়।'
+  },
+  gujarati: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice કે search થી DSA શંકા પૂછો — pattern, કારણ, complexity અને trade-off, તમારી ભાષામાં.',
+    langLabel: 'તમારી ભાષા પસંદ કરો',
+    langNote: 'Voice જવાબો: Hinglish, English, Telugu, Tamil, Kannada, Malayalam. બીજી ભાષાના પ્રશ્નો સમજાશે, જવાબ English માં આવશે.',
+    micStart: 'બોલવા માટે ટેપ કરો',
+    micStop: 'રોકો અને જવાબ સાંભળો',
+    listening: 'સાંભળું છું… બોલો!',
+    thinking: 'Pattern શોધું છું…',
+    sttWorking: 'Prisma સાંભળે છે…',
+    voiceWorking: 'Voice જવાબ તૈયાર થઈ રહ્યો છે…',
+    searchLabel: 'અથવા પ્રશ્ન type કરો',
+    searchPlaceholder: 'શંકા પૂછો, દા.ત.: Linked list reverse કેવી રીતે?',
+    askButton: 'પૂછો',
+    clearButton: 'Clear કરો',
+    searchHint: 'Tip: નીચે topic પર ટેપ કરો, અથવા અડધો પ્રશ્ન લખીને suggestion પસંદ કરો.',
+    browseTitle: 'Topics જુઓ',
+    allLabel: 'બધા',
+    chatTitle: 'તમારી revision chat',
+    chatEmpty: 'ઉપર voice કે search થી પૂછો — તમારા પ્રશ્નો અને જવાબો અહીં દેખાશે.',
+    youLabel: 'તમે પૂછ્યું',
+    simplerButton: 'વધુ સરળ રીતે સમજાવો',
+    exampleButton: 'એક example આપો',
+    replayButton: 'Voice ફરી સાંભળો',
+    copyButton: 'જવાબ copy કરો',
+    copiedLabel: 'Copy થઈ ગયું!',
+    tryNext: 'પછી try કરો:',
+    exploredLabel: 'જોયેલા',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key નથી)',
+    voiceOffNote: 'Voice બંધ છે — જવાબો સાંભળવા Gnani API key ઉમેરો. Text જવાબો ચાલશે.',
+    noKeyBanner: 'Voice બંધ: Gnani API key મળી નથી. Search અને browsing ચાલશે. Voice ચાલુ કરવા app.py પાસે .env file માં GNANI_API_KEY ઉમેરો અને restart કરો.',
+    errorTitle: 'કંઈક ખોટું થયું',
+    micDenied: 'Mic ની permission block થઈ છે. Browser માં mic allow કરો, અથવા પ્રશ્ન type કરો.',
+    micMissing: 'આ browser માં mic મળ્યો નથી. પ્રશ્ન type કરીને પૂછો.',
+    networkError: 'App server સાથે connect થઈ શક્યું નથી. python app.py ચાલે છે? Terminal તપાસો અને ફરી પ્રયાસ કરો.',
+    emptyQuestion: 'પહેલા પ્રશ્ન type કરો અથવા topic પસંદ કરો.',
+    followupWorking: 'સરળ version લાવું છું…',
+    footerNote: 'Gnani Prisma (speech-to-text) અને Timbre (text-to-speech) થી બનેલું છે. જવાબો pattern, કારણ, complexity અને trade-off શીખવે છે.'
+  },
+  punjabi: {
+    appTitle: 'Bolke Seekho',
+    subtitle: 'Voice ਜਾਂ search ਨਾਲ DSA ਸ਼ੱਕ ਪੁੱਛੋ — pattern, ਕਾਰਨ, complexity ਅਤੇ trade-off, ਤੁਹਾਡੀ ਭਾਸ਼ਾ ਵਿੱਚ।',
+    langLabel: 'ਆਪਣੀ ਭਾਸ਼ਾ ਚੁਣੋ',
+    langNote: 'Voice ਜਵਾਬ: Hinglish, English, Telugu, Tamil, Kannada, Malayalam। ਹੋਰ ਭਾਸ਼ਾਵਾਂ ਦੇ ਸਵਾਲ ਸਮਝ ਆਉਣਗੇ, ਜਵਾਬ English ਵਿੱਚ ਆਵੇਗਾ।',
+    micStart: 'ਬੋਲਣ ਲਈ ਟੈਪ ਕਰੋ',
+    micStop: 'ਰੁਕੋ ਅਤੇ ਜਵਾਬ ਸੁਣੋ',
+    listening: 'ਸੁਣ ਰਿਹਾ ਹਾਂ… ਬੋਲੋ!',
+    thinking: 'Pattern ਲੱਭ ਰਿਹਾ ਹਾਂ…',
+    sttWorking: 'Prisma ਸੁਣ ਰਿਹਾ ਹੈ…',
+    voiceWorking: 'Voice ਜਵਾਬ ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ…',
+    searchLabel: 'ਜਾਂ ਸਵਾਲ type ਕਰੋ',
+    searchPlaceholder: 'ਸ਼ੱਕ ਪੁੱਛੋ, ਜਿਵੇਂ: Linked list reverse ਕਿਵੇਂ?',
+    askButton: 'ਪੁੱਛੋ',
+    clearButton: 'Clear ਕਰੋ',
+    searchHint: 'Tip: ਹੇਠਾਂ topic \'ਤੇ ਟੈਪ ਕਰੋ, ਜਾਂ ਅੱਧਾ ਸਵਾਲ ਲਿਖ ਕੇ suggestion ਚੁਣੋ।',
+    browseTitle: 'Topics ਵੇਖੋ',
+    allLabel: 'ਸਭ',
+    chatTitle: 'ਤੁਹਾਡੀ revision chat',
+    chatEmpty: 'ਉੱਪਰ voice ਜਾਂ search ਨਾਲ ਪੁੱਛੋ — ਤੁਹਾਡੇ ਸਵਾਲ ਅਤੇ ਜਵਾਬ ਇੱਥੇ ਦਿਖਾਈ ਦੇਣਗੇ।',
+    youLabel: 'ਤੁਸੀਂ ਪੁੱਛਿਆ',
+    simplerButton: 'ਹੋਰ ਸੌਖਾ ਸਮਝਾਓ',
+    exampleButton: 'ਇੱਕ example ਦਿਓ',
+    replayButton: 'Voice ਦੁਬਾਰਾ ਸੁਣੋ',
+    copyButton: 'ਜਵਾਬ copy ਕਰੋ',
+    copiedLabel: 'Copy ਹੋ ਗਿਆ!',
+    tryNext: 'ਅੱਗੇ try ਕਰੋ:',
+    exploredLabel: 'ਵੇਖੇ',
+    voiceOn: 'Voice on',
+    voiceOff: 'Voice off (API key ਨਹੀਂ ਹੈ)',
+    voiceOffNote: 'Voice ਬੰਦ ਹੈ — ਜਵਾਬ ਸੁਣਨ ਲਈ Gnani API key ਸ਼ਾਮਲ ਕਰੋ। Text ਜਵਾਬ ਕੰਮ ਕਰਨਗੇ।',
+    noKeyBanner: 'Voice ਬੰਦ: Gnani API key ਨਹੀਂ ਮਿਲੀ। Search ਅਤੇ browsing ਕੰਮ ਕਰਨਗੇ। Voice ਚਾਲੂ ਕਰਨ ਲਈ app.py ਦੇ ਨੇੜੇ .env file ਵਿੱਚ GNANI_API_KEY ਸ਼ਾਮਲ ਕਰੋ ਅਤੇ restart ਕਰੋ।',
+    errorTitle: 'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ',
+    micDenied: 'Mic ਦੀ permission block ਹੋ ਗਈ ਹੈ। Browser ਵਿੱਚ mic allow ਕਰੋ, ਜਾਂ ਸਵਾਲ type ਕਰੋ।',
+    micMissing: 'ਇਸ browser ਵਿੱਚ mic ਨਹੀਂ ਮਿਲਿਆ। ਸਵਾਲ type ਕਰਕੇ ਪੁੱਛੋ।',
+    networkError: 'App server ਨਾਲ connect ਨਹੀਂ ਹੋ ਸਕਿਆ। ਕੀ python app.py ਚੱਲ ਰਿਹਾ ਹੈ? Terminal ਚੈੱਕ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    emptyQuestion: 'ਪਹਿਲਾਂ ਸਵਾਲ type ਕਰੋ ਜਾਂ topic ਚੁਣੋ।',
+    followupWorking: 'ਸੌਖਾ version ਲਿਆ ਰਿਹਾ ਹਾਂ…',
+    footerNote: 'Gnani Prisma (speech-to-text) ਅਤੇ Timbre (text-to-speech) ਨਾਲ ਬਣਾਇਆ ਗਿਆ ਹੈ। ਜਵਾਬ pattern, ਕਾਰਨ, complexity ਅਤੇ trade-off ਸਿਖਾਉਂਦੇ ਹਨ।'
+  }
+};
+
+const $ = (id) => document.getElementById(id);
+const langSel = $('langSel');
+const micBtn = $('micBtn');
+const statusEl = $('status');
+const textQ = $('textQ');
+const askBtn = $('askBtn');
+const suggestBox = $('suggestBox');
+const chatList = $('chatList');
+const chatEmpty = $('chatEmpty');
+const errorBox = $('errorBox');
+
+let currentLang = 'hinglish';
+let busy = false;
+let explored = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem('bolke-seekho-explored-v2') || '[]');
+  if (Array.isArray(saved)) explored = new Set(saved);
+} catch (e) { explored = new Set(); }
+
+function t(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || I18N.english[key] || key;
 }
-function stopRecording() {
-  const { buffers, sampleRate } = mediaRecorder;
-  mediaRecorder.processor.disconnect(); mediaRecorder.source.disconnect();
-  streamRef.getTracks().forEach(t => t.stop()); audioCtx.close();
-  micBtn.textContent = '🎤 Bolna shuru karo'; micBtn.classList.remove('recording');
-  return encodeWav(downsample(merge(buffers), sampleRate, 16000), 16000);
+
+function renderStats() {
+  $('statTopics').textContent = TOPICS.length + ' topics · ' + explored.size + ' ' + t('exploredLabel');
+  const voice = $('statVoice');
+  voice.textContent = KEY_SET ? t('voiceOn') : t('voiceOff');
+  voice.classList.toggle('voice-off', !KEY_SET);
 }
+
+function applyLang() {
+  currentLang = langSel.value;
+  document.documentElement.lang = HTML_LANG[currentLang] || 'en';
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  document.title = 'Bolke Seekho — ' + t('subtitle');
+  renderStats();
+  try { localStorage.setItem('bolke-seekho-lang', currentLang); } catch (e) {}
+}
+
+function markExplored(topic) {
+  if (!topic || topic === 'Not in list' || topic.endsWith('patterns')) return;
+  if (explored.has(topic)) return;
+  explored.add(topic);
+  try { localStorage.setItem('bolke-seekho-explored-v2', JSON.stringify([...explored])); } catch (e) {}
+  renderStats();
+  document.querySelectorAll('.topic-btn').forEach((btn) => {
+    if (btn.dataset.topic === topic) btn.classList.add('explored');
+  });
+}
+
+function showError(message) {
+  errorBox.innerHTML = '';
+  const strong = document.createElement('strong');
+  strong.textContent = t('errorTitle') + ': ';
+  errorBox.appendChild(strong);
+  errorBox.appendChild(document.createTextNode(message));
+  errorBox.hidden = false;
+  errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearError() { errorBox.hidden = true; errorBox.innerHTML = ''; }
+
+function setBusy(value, statusKey) {
+  busy = value;
+  askBtn.disabled = value;
+  micBtn.disabled = value;
+  statusEl.textContent = value && statusKey ? t(statusKey) : (value ? statusEl.textContent : '');
+}
+
+async function postJson(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  let data = null;
+  try { data = await res.json(); } catch (e) { data = null; }
+  if (!res.ok || !data) {
+    const message = (data && data.error) || ('HTTP ' + res.status);
+    const err = new Error(message);
+    err.code = data && data.error_code;
+    throw err;
+  }
+  return data;
+}
+
+// --- Chat rendering ---------------------------------------------------------
+
+function makeAudio(base64) {
+  const player = document.createElement('audio');
+  player.controls = true;
+  player.src = 'data:audio/mpeg;base64,' + base64;
+  return player;
+}
+
+function renderExchange(data, questionText) {
+  chatEmpty.style.display = 'none';
+  const q = document.createElement('div');
+  q.className = 'bubble-q';
+  const who = document.createElement('span');
+  who.className = 'who';
+  who.textContent = t('youLabel');
+  const qtext = document.createElement('span');
+  qtext.textContent = questionText;
+  q.appendChild(who);
+  q.appendChild(qtext);
+  chatList.appendChild(q);
+
+  const a = document.createElement('div');
+  a.className = 'bubble-a';
+  const tags = document.createElement('div');
+  tags.className = 'tags';
+  const topicTag = document.createElement('span');
+  topicTag.className = 'tag topic';
+  topicTag.textContent = data.topic || '';
+  tags.appendChild(topicTag);
+  if (data.category) {
+    const cat = document.createElement('span');
+    cat.className = 'tag';
+    cat.textContent = data.category;
+    tags.appendChild(cat);
+  }
+  if (data.difficulty) {
+    const diff = document.createElement('span');
+    diff.className = 'tag';
+    diff.textContent = data.difficulty;
+    tags.appendChild(diff);
+  }
+  a.appendChild(tags);
+
+  const answerEl = document.createElement('p');
+  answerEl.className = 'answer';
+  answerEl.textContent = data.answer || '';
+  a.appendChild(answerEl);
+
+  let player = null;
+  if (data.audio_base64) {
+    player = makeAudio(data.audio_base64);
+    a.appendChild(player);
+    player.play().catch(() => {});
+  } else if (data.tts_error) {
+    const note = document.createElement('p');
+    note.className = 'note bad';
+    note.textContent = t('errorTitle') + ': ' + data.tts_error;
+    a.appendChild(note);
+  } else if (data.voice_available === false) {
+    const note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = t('voiceOffNote');
+    a.appendChild(note);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  const topic = data.topic || '';
+  if (data.matched) {
+    const btnSimple = document.createElement('button');
+    btnSimple.type = 'button';
+    btnSimple.textContent = t('simplerButton');
+    btnSimple.addEventListener('click', () => runFollowup(topic, 'simple', answerEl, a, btnSimple, btnExample));
+    const btnExample = document.createElement('button');
+    btnExample.type = 'button';
+    btnExample.textContent = t('exampleButton');
+    btnExample.addEventListener('click', () => runFollowup(topic, 'example', answerEl, a, btnSimple, btnExample));
+    actions.appendChild(btnSimple);
+    actions.appendChild(btnExample);
+  }
+  if (player) {
+    const btnReplay = document.createElement('button');
+    btnReplay.type = 'button';
+    btnReplay.className = 'secondary';
+    btnReplay.textContent = t('replayButton');
+    btnReplay.addEventListener('click', () => { player.currentTime = 0; player.play().catch(() => {}); });
+    actions.appendChild(btnReplay);
+  }
+  const btnCopy = document.createElement('button');
+  btnCopy.type = 'button';
+  btnCopy.className = 'secondary';
+  btnCopy.textContent = t('copyButton');
+  btnCopy.addEventListener('click', async () => {
+    const text = answerEl.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e2) {}
+      ta.remove();
+    }
+    const original = btnCopy.textContent;
+    btnCopy.textContent = t('copiedLabel');
+    setTimeout(() => { btnCopy.textContent = original; }, 1500);
+  });
+  actions.appendChild(btnCopy);
+  a.appendChild(actions);
+
+  if (Array.isArray(data.suggestions) && data.suggestions.length) {
+    const wrap = document.createElement('div');
+    wrap.className = 'try-next';
+    wrap.appendChild(document.createTextNode(t('tryNext')));
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+    data.suggestions.forEach((s) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.textContent = s;
+      chip.addEventListener('click', () => askText(s));
+      chips.appendChild(chip);
+    });
+    wrap.appendChild(chips);
+    a.appendChild(wrap);
+  }
+
+  chatList.appendChild(a);
+  a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  return a;
+}
+
+async function runFollowup(topic, kind, answerEl, bubbleEl, btnSimple, btnExample) {
+  if (busy) return;
+  clearError();
+  btnSimple.disabled = true;
+  btnExample.disabled = true;
+  statusEl.textContent = t('followupWorking');
+  try {
+    const data = await postJson('/api/followup', { topic, kind, lang: langSel.value });
+    answerEl.textContent = data.answer || '';
+    const oldPlayer = bubbleEl.querySelector('audio');
+    if (oldPlayer) oldPlayer.remove();
+    if (data.audio_base64) {
+      const player = makeAudio(data.audio_base64);
+      answerEl.after(player);
+      player.play().catch(() => {});
+    }
+    bubbleEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) {
+    showError(err instanceof TypeError ? t('networkError') : err.message);
+  } finally {
+    btnSimple.disabled = false;
+    btnExample.disabled = false;
+    statusEl.textContent = '';
+  }
+}
+
+// --- Ask flows --------------------------------------------------------------
+
+async function askText(question) {
+  const q = (question || '').trim();
+  if (busy) return;
+  if (!q) { showError(t('emptyQuestion')); textQ.focus(); return; }
+  hideSuggestions();
+  clearError();
+  setBusy(true, 'thinking');
+  try {
+    const data = await postJson('/api/text', { question: q, lang: langSel.value });
+    renderExchange(data, q);
+    if (data.matched) markExplored(data.topic);
+    textQ.value = '';
+  } catch (err) {
+    showError(err instanceof TypeError ? t('networkError') : err.message);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function askTopic(topic) { askText(topic); }
+
+// --- Voice recording (16 kHz mono WAV for Prisma) ---------------------------
+
+let mediaRecorder = null, streamRef = null, audioCtx = null;
+let recStart = 0, recTimerId = null;
+
+function isRecording() { return mediaRecorder !== null; }
+
+function setMicLabel() {
+  const label = micBtn.querySelector('span');
+  if (label) label.textContent = isRecording() ? t('micStop') : t('micStart');
+}
+
 function merge(buffers) {
   let len = 0; buffers.forEach(b => len += b.length);
   const out = new Float32Array(len); let off = 0;
@@ -140,62 +908,227 @@ function encodeWav(samples, rate) {
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
-micBtn.onclick = async () => {
-  if (!mediaRecorder) { await startRecording(); return; }
-  const wav = stopRecording(); mediaRecorder = null;
-  statusEl.textContent = 'Prisma sun raha hai…';
-  const fd = new FormData();
-  fd.append('audio', wav, 'question.wav');
-  fd.append('lang', langSel.value);
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showError(t('micMissing'));
+    return false;
+  }
+  if (!window.AudioContext && !window.webkitAudioContext) {
+    showError(t('micMissing'));
+    return false;
+  }
   try {
-    const res = await fetch('/api/ask', { method: 'POST', body: fd });
-    showResult(await res.json());
-  } catch (e) { statusEl.textContent = 'Network error: ' + e; }
-};
+    streamRef = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    showError(e && e.name === 'NotAllowedError' ? t('micDenied') : (e && e.message ? e.message : t('micDenied')));
+    return false;
+  }
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(streamRef);
+  const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+  const buffers = [];
+  processor.onaudioprocess = e => buffers.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  source.connect(processor); processor.connect(audioCtx.destination);
+  mediaRecorder = { buffers, processor, source, sampleRate: audioCtx.sampleRate };
+  micBtn.classList.add('recording');
+  micBtn.setAttribute('aria-pressed', 'true');
+  setMicLabel();
+  $('bars').classList.add('on');
+  statusEl.textContent = t('listening');
+  recStart = Date.now();
+  recTimerId = setInterval(() => {
+    const s = Math.floor((Date.now() - recStart) / 1000);
+    $('recTimer').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }, 500);
+  return true;
+}
 
-function showResult(data) {
-  if (data.error) { statusEl.textContent = '⚠️ ' + data.error; return; }
-  statusEl.textContent = '';
-  document.getElementById('resultCard').style.display = 'block';
-  if (data.transcript !== undefined) document.getElementById('transcript').textContent = data.transcript || '';
-  document.getElementById('topic').textContent = data.topic || '';
-  document.getElementById('answer').textContent = data.answer || '';
-  document.getElementById('ttsError').textContent = data.tts_error ? ('Voice reply failed: ' + data.tts_error) : '';
-  currentTopic = data.topic || '';
-  document.getElementById('followups').style.display = (currentTopic && currentTopic !== 'Not in list') ? 'block' : 'none';
-  if (data.audio_base64) {
-    const player = document.getElementById('player');
-    player.src = 'data:audio/mpeg;base64,' + data.audio_base64;
-    player.play().catch(() => {});
+function stopRecording() {
+  const rec = mediaRecorder;
+  mediaRecorder = null;
+  clearInterval(recTimerId);
+  recTimerId = null;
+  $('recTimer').textContent = '';
+  try {
+    rec.processor.disconnect();
+    rec.source.disconnect();
+    streamRef.getTracks().forEach(tr => tr.stop());
+    audioCtx.close();
+  } catch (e) {}
+  micBtn.classList.remove('recording');
+  micBtn.setAttribute('aria-pressed', 'false');
+  setMicLabel();
+  $('bars').classList.remove('on');
+  return encodeWav(downsample(merge(rec.buffers), rec.sampleRate, 16000), 16000);
+}
+
+micBtn.addEventListener('click', async () => {
+  if (isRecording()) {
+    const wav = stopRecording();
+    clearError();
+    setBusy(true, 'sttWorking');
+    try {
+      const fd = new FormData();
+      fd.append('audio', wav, 'question.wav');
+      fd.append('lang', langSel.value);
+      const res = await fetch('/api/ask', { method: 'POST', body: fd });
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = null; }
+      if (!res.ok || !data) throw new Error((data && data.error) || ('HTTP ' + res.status));
+      if (data.voice_available) statusEl.textContent = t('voiceWorking');
+      renderExchange(data, data.transcript || '');
+      if (data.matched) markExplored(data.topic);
+    } catch (err) {
+      showError(err instanceof TypeError ? t('networkError') : err.message);
+    } finally {
+      setBusy(false);
+    }
+    return;
+  }
+  if (busy) return;
+  if (!KEY_SET) { showError(t('voiceOffNote')); return; }
+  clearError();
+  await startRecording();
+});
+
+// --- Search: form, suggestions, filtering -----------------------------------
+
+let suggestTimer = null;
+let suggestItems = [];
+let suggestActive = -1;
+
+function hideSuggestions() {
+  suggestBox.hidden = true;
+  suggestBox.innerHTML = '';
+  suggestItems = [];
+  suggestActive = -1;
+  textQ.setAttribute('aria-expanded', 'false');
+}
+
+function localSuggest(q) {
+  const needle = q.toLowerCase();
+  return TOPICS.filter(tp => tp.topic.toLowerCase().includes(needle) || tp.category.toLowerCase().includes(needle)).slice(0, 6);
+}
+
+function renderSuggestions(items) {
+  suggestBox.innerHTML = '';
+  suggestItems = items;
+  suggestActive = -1;
+  if (!items.length) { hideSuggestions(); return; }
+  items.forEach((item, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('role', 'option');
+    btn.id = 'suggest-' + idx;
+    const name = document.createElement('span');
+    name.textContent = item.topic;
+    const cat = document.createElement('span');
+    cat.className = 'cat';
+    cat.textContent = item.category;
+    btn.appendChild(name);
+    btn.appendChild(cat);
+    btn.addEventListener('mousedown', (e) => { e.preventDefault(); pickSuggestion(item.topic); });
+    suggestBox.appendChild(btn);
+  });
+  suggestBox.hidden = false;
+  textQ.setAttribute('aria-expanded', 'true');
+}
+
+function setActiveSuggestion(idx) {
+  const buttons = suggestBox.querySelectorAll('button');
+  buttons.forEach((b, i) => b.classList.toggle('active', i === idx));
+  suggestActive = idx;
+  if (idx >= 0) textQ.setAttribute('aria-activedescendant', 'suggest-' + idx);
+  else textQ.removeAttribute('aria-activedescendant');
+}
+
+function pickSuggestion(topic) {
+  hideSuggestions();
+  textQ.value = topic;
+  askText(topic);
+}
+
+async function fetchSuggestions(q) {
+  try {
+    const res = await fetch('/api/suggest?q=' + encodeURIComponent(q) + '&limit=6');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderSuggestions(data.suggestions || []);
+  } catch (e) {
+    renderSuggestions(localSuggest(q));
   }
 }
 
-document.querySelectorAll('.chips button').forEach(b => b.onclick = () => askText(b.dataset.q));
-document.getElementById('textQ').addEventListener('keydown', e => { if (e.key === 'Enter') askText(e.target.value); });
-async function askText(q) {
-  if (!q.trim()) return;
-  statusEl.textContent = 'Timbre jawab taiyaar kar raha hai…';
-  const res = await fetch('/api/text', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ question: q, lang: langSel.value }) });
-  showResult(await res.json());
-}
+textQ.addEventListener('input', () => {
+  clearTimeout(suggestTimer);
+  const q = textQ.value.trim();
+  if (q.length < 2) { hideSuggestions(); return; }
+  suggestTimer = setTimeout(() => fetchSuggestions(q), 180);
+});
 
-async function followup(kind) {
-  if (!currentTopic) return;
-  statusEl.textContent = 'Clarify kar raha hoon…';
-  const res = await fetch('/api/followup', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ topic: currentTopic, kind: kind, lang: langSel.value }) });
-  const data = await res.json();
-  if (data.error) { statusEl.textContent = '⚠️ ' + data.error; return; }
-  statusEl.textContent = '';
-  document.getElementById('answer').textContent = data.answer || '';
-  document.getElementById('ttsError').textContent = data.tts_error ? ('Voice reply failed: ' + data.tts_error) : '';
-  if (data.audio_base64) {
-    const player = document.getElementById('player');
-    player.src = 'data:audio/mpeg;base64,' + data.audio_base64;
-    player.play().catch(() => {});
-  }
-}
-document.getElementById('btnSimple').onclick = () => followup('simple');
-document.getElementById('btnExample').onclick = () => followup('example');
+textQ.addEventListener('keydown', (e) => {
+  if (suggestBox.hidden || !suggestItems.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); setActiveSuggestion((suggestActive + 1) % suggestItems.length); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveSuggestion((suggestActive - 1 + suggestItems.length) % suggestItems.length); }
+  else if (e.key === 'Enter' && suggestActive >= 0) { e.preventDefault(); pickSuggestion(suggestItems[suggestActive].topic); }
+  else if (e.key === 'Escape') { hideSuggestions(); }
+});
+
+textQ.addEventListener('blur', () => { setTimeout(hideSuggestions, 150); });
+document.addEventListener('click', (e) => { if (!e.target.closest('.search-wrap')) hideSuggestions(); });
+
+$('searchForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  askText(textQ.value);
+});
+
+$('clearBtn').addEventListener('click', () => {
+  textQ.value = '';
+  hideSuggestions();
+  clearError();
+  textQ.focus();
+});
+
+$('catChips').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-category]');
+  if (!btn) return;
+  document.querySelectorAll('#catChips button').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+  const cat = btn.dataset.category;
+  let visible = 0;
+  document.querySelectorAll('.topic-btn').forEach((tb) => {
+    const show = cat === '__all' || tb.dataset.category === cat;
+    tb.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  $('emptyGrid').hidden = visible > 0;
+});
+
+$('topicGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.topic-btn');
+  if (!btn) return;
+  askTopic(btn.dataset.topic);
+});
+
+langSel.addEventListener('change', () => {
+  hideSuggestions();
+  applyLang();
+  setMicLabel();
+});
+
+// --- Init -------------------------------------------------------------------
+
+(function init() {
+  try {
+    const savedLang = localStorage.getItem('bolke-seekho-lang');
+    if (savedLang && I18N[savedLang]) langSel.value = savedLang;
+  } catch (e) {}
+  applyLang();
+  setMicLabel();
+  document.querySelectorAll('.topic-btn').forEach((btn) => {
+    if (explored.has(btn.dataset.topic)) btn.classList.add('explored');
+  });
+  renderStats();
+})();
 </script>
 </body>
 </html>

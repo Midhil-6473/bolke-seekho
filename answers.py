@@ -590,42 +590,64 @@ ANSWERS += [
     },
 ]
 
+# --- Extra topics added in the Nov 16, 2026 rebuild -------------------------
+try:
+    from topics_extra import EXTRA_ANSWERS as _EXTRA_ANSWERS
+
+    ANSWERS.extend(_EXTRA_ANSWERS)
+except ImportError:  # topics_extra.py missing: keep the original 12 topics
+    _EXTRA_ANSWERS = []
+
+# Category / difficulty for the original 12 entries (new entries carry
+# their own). Used by the topic browser.
+TOPIC_META = {
+    "Two Sum": ("Arrays & Searching", "Easy"),
+    "3Sum": ("Arrays & Searching", "Medium"),
+    "Container With Most Water": ("Arrays & Searching", "Medium"),
+    "Best Time to Buy and Sell Stock": ("Arrays & Searching", "Easy"),
+    "Product of Array Except Self": ("Arrays & Searching", "Medium"),
+    "Longest Consecutive Sequence": ("Arrays & Searching", "Medium"),
+    "Subarray Sum Equals K (Prefix Sum)": ("Arrays & Searching", "Medium"),
+    "Remove Duplicates from Sorted Array": ("Arrays & Searching", "Easy"),
+    "Move Zeroes": ("Arrays & Searching", "Easy"),
+    "Longest Substring Without Repeating Characters": ("Strings & Hashing", "Medium"),
+    "Valid Anagram": ("Strings & Hashing", "Easy"),
+    "Sliding Window (generic)": ("Arrays & Searching", "Medium"),
+}
+
 # --- Clarifying fallback (used when no topic matches) -----------------------
 
 _TOPIC_LIST_EN = (
-    "Two Sum, 3Sum, Container With Most Water, Stock Buy and Sell, Product of Array Except Self, "
-    "Longest Consecutive Sequence, Prefix Sum, Remove Duplicates, Move Zeroes, Longest Substring, "
-    "Valid Anagram, and the Sliding Window pattern"
+    "arrays, strings, linked lists, stacks, trees, graphs, dynamic programming, "
+    "sorting, and heaps (40 topics in total)"
 )
 
 FALLBACKS = {
     "hinglish": (
-        "Ye sawal main pakad nahi paaya — thoda clarify karte hain. Kya tum in mein se kisi topic par "
-        "pooch rahe ho: Two Sum, 3Sum, Container With Most Water, Stock Buy Sell, Product Except Self, "
-        "Prefix Sum, Sliding Window ya Anagram? Topic ka naam bol do, main pattern ke saath samjha deta hoon."
+        "Ye topic abhi meri list mein nahi hai. Main arrays, strings, linked list, stack, trees, graphs, "
+        "DP, sorting aur heap ke 40 topics samjha sakta hoon. Neeche topics browse karo ya search mein "
+        "topic ka naam likho, main pattern ke saath samjha dunga."
     ),
     "english": (
-        "I could not catch that question — let me clarify. Are you asking about one of these topics: "
-        + _TOPIC_LIST_EN + "? Just say the topic name and I will explain it with its pattern."
+        "That topic is not in my list yet. I cover 40 topics across arrays, strings, linked lists, stacks, "
+        "trees, graphs, dynamic programming, sorting, and heaps. Browse the topics below or type a topic "
+        "name in search, and I will explain it with its pattern."
     ),
     "telugu": (
-        "ఆ ప్రశ్న నాకు అర్థం కాలేదు — కాస్త clarify చేద్దాం. మీరు ఈ topics లో దేని గురించైనా అడుగుతున్నారా: "
-        "Two Sum, 3Sum, Stock Buy Sell, Prefix Sum, Sliding Window లేదా Anagram? Topic పేరు చెప్పండి, pattern తో వివరిస్తాను."
+        "ఆ topic నా list లో ఇంకా లేదు. Arrays, strings, linked list, stack, trees, graphs, DP, sorting, heap — "
+        "మొత్తం 40 topics వివరించగలను. కింద topics చూడండి లేదా search లో topic పేరు రాయండి."
     ),
     "tamil": (
-        "அந்த கேள்வி எனக்கு புரியவில்லை — கொஞ்சம் clarify செய்வோம். இந்த topics-ல் ஏதாவது ஒன்றைப் பற்றி "
-        "கேட்கிறீர்களா: Two Sum, 3Sum, Stock Buy Sell, Prefix Sum, Sliding Window அல்லது Anagram? "
-        "Topic பெயரைச் சொல்லுங்கள், pattern உடன் விளக்குகிறேன்."
+        "அந்த topic என் list-ல் இன்னும் இல்லை. Arrays, strings, linked list, stack, trees, graphs, DP, sorting, heap — "
+        "மொத்தம் 40 topics விளக்க முடியும். கீழே topics பாருங்கள் அல்லது search-ல் topic பெயரை எழுதுங்கள்."
     ),
     "kannada": (
-        "ಆ ಪ್ರಶ್ನೆ ನನಗೆ ಸಿಗಲಿಲ್ಲ — ಸ್ವಲ್ಪ clarify ಮಾಡೋಣ. ನೀವು ಈ topics ಗಳಲ್ಲಿ ಯಾವುದಾದರೂ ಒಂದರ ಬಗ್ಗೆ "
-        "ಕೇಳುತ್ತಿದ್ದೀರಾ: Two Sum, 3Sum, Stock Buy Sell, Prefix Sum, Sliding Window ಅಥವಾ Anagram? "
-        "Topic ಹೆಸರು ಹೇಳಿ, pattern ಜೊತೆಗೆ ವಿವರಿಸುತ್ತೇನೆ."
+        "ಆ topic ನನ್ನ list ನಲ್ಲಿ ಇನ್ನೂ ಇಲ್ಲ. Arrays, strings, linked list, stack, trees, graphs, DP, sorting, heap — "
+        "ಒಟ್ಟು 40 topics ವಿವರಿಸಬಹುದು. ಕೆಳಗೆ topics ನೋಡಿ ಅಥವಾ search ನಲ್ಲಿ topic ಹೆಸರು ಬರೆಯಿರಿ."
     ),
     "malayalam": (
-        "ആ ചോദ്യം എനിക്ക് പിടികിട്ടിയില്ല — അല്പം clarify ചെയ്യാം. ഈ topics-ൽ ഏതെങ്കിലും ഒന്നിനെക്കുറിച്ചാണോ "
-        "ചോദിക്കുന്നത്: Two Sum, 3Sum, Stock Buy Sell, Prefix Sum, Sliding Window അല്ലെങ്കിൽ Anagram? "
-        "Topic-ന്റെ പേര് പറയുക, pattern സഹിതം വിശദീകരിക്കാം."
+        "ആ topic എന്റെ list-ൽ ഇതുവരെ ഇല്ല. Arrays, strings, linked list, stack, trees, graphs, DP, sorting, heap — "
+        "ആകെ 40 topics വിശദീകരിക്കാൻ കഴിയും. താഴെ topics നോക്കുക അല്ലെങ്കിൽ search-ൽ topic പേര് എഴുതുക."
     ),
 }
 
@@ -639,6 +661,13 @@ ALIASES = {
     "ज़ीरो": "zero", "शून्य": "zero", "सबएरे": "subarray", "एनाग्राम": "anagram",
     "प्रोडक्ट": "product", "कंटेनर": "container", "प्रॉफिट": "profit",
     "खरीदें": "buy", "बेचें": "sell",
+    "लिंक्ड": "linked", "सॉर्ट": "sort", "ट्री": "tree", "ग्राफ": "graph",
+    "स्टैक": "stack", "क्यू": "queue", "हीप": "heap", "सर्च": "search",
+    "रिवर्स": "reverse", "उल्टा": "reverse", "चक्र": "cycle", "गहराई": "depth",
+    "సార్ట్": "sort", "ట్రీ": "tree", "గ్రాఫ్": "graph", "స్టాక్": "stack",
+    "சார்ட்": "sort", "ட்ரீ": "tree", "கிராஃப்": "graph", "ஸ்டாக்": "stack",
+    "ಸಾರ್ಟ್": "sort", "ಟ್ರೀ": "tree", "ಗ್ರಾಫ್": "graph", "ಸ್ಟಾಕ್": "stack",
+    "സോർട്ട്": "sort", "ട്രീ": "tree", "ഗ്രാഫ്": "graph", "സ്റ്റാക്ക്": "stack",
     "టూ": "two", "సమ్": "sum", "స్టాక్": "stock", "షేర్": "share",
     "டூ": "two", "சம்": "sum", "ஸ்டாக்": "stock", "ஷேர்": "share",
     "ಟೂ": "two", "ಸಮ್": "sum", "ಸ್ಟಾಕ್": "stock", "ಶೇರ್": "share",
@@ -658,35 +687,377 @@ def _entry_for_topic(topic: str):
     return None
 
 
-def find_answer(transcript: str, lang: str = "hinglish") -> tuple[str, str]:
-    """Return (topic, answer_text) for a spoken/typed question in `lang`."""
-    text = _normalize(transcript)
-    best = None
-    for entry in ANSWERS:
-        for kw in entry["keywords"]:
-            if kw.lower() in text or kw.lower() in (transcript or "").lower():
-                if best is None or len(kw) > best[0]:
-                    best = (len(kw), entry)
-                break
+# --- Family guides: teach the pattern family when no single topic matches ---
+# Answers are Hinglish + English; other languages fall back to English text.
+
+FAMILY_GUIDES = [
+    {
+        "id": "linked_list",
+        "title": "Linked List patterns",
+        "keywords": ["linked", "link list", "singly", "doubly", "head", "node", "pointer"],
+        "answers": {
+            "hinglish": (
+                "Linked list ke zyada problems teen patterns se bante hain: dummy node se head ke edge cases khatm karo, "
+                "slow aur fast pointer se beech ya cycle dhoondho, aur teen pointers se links ulta karo. "
+                "Is family mein main ye samjha sakta hoon: Reverse Linked List, Linked List Cycle, Merge Two Sorted Lists, "
+                "aur Remove Nth Node From End. In mein se kisi ka naam bolo, main pattern ke saath samjha dunga."
+            ),
+            "english": (
+                "Most linked list problems use three patterns: a dummy node to remove head edge cases, slow and fast "
+                "pointers to find the middle or a cycle, and three pointers to reverse links. In this family I can explain: "
+                "Reverse Linked List, Linked List Cycle, Merge Two Sorted Lists, and Remove Nth Node From End. "
+                "Name one of those and I will explain it with its pattern."
+            ),
+        },
+    },
+    {
+        "id": "stack_queue",
+        "title": "Stack & Queue patterns",
+        "keywords": ["stack", "queue", "deque", "bracket", "parenthesis", "parentheses", "monotonic", "lifo", "fifo"],
+        "answers": {
+            "hinglish": (
+                "Stack last in first out hota hai, queue first in first out. Stack tab use karo jab sabse recent cheez pehle chahiye, "
+                "jaise brackets match karna ya pichhla bada element. Monotonic stack mein sirf useful elements rakho, bekaar ko pop kar do. "
+                "Is family mein main ye samjha sakta hoon: Valid Parentheses, Min Stack, aur Next Greater Element. Kisi ka naam bolo."
+            ),
+            "english": (
+                "A stack is last in, first out; a queue is first in, first out. Use a stack when the most recent item is needed first, "
+                "such as matching brackets or finding a previous greater element. A monotonic stack keeps only useful elements and pops the rest. "
+                "In this family I can explain: Valid Parentheses, Min Stack, and Next Greater Element. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "trees",
+        "title": "Tree patterns",
+        "keywords": ["tree", "bst", "binary tree", "traversal", "ancestor", "root", "leaf", "subtree", "inorder", "preorder", "postorder"],
+        "answers": {
+            "hinglish": (
+                "Tree ke problems aksar recursion se bante hain: node par kuch karo, phir left aur right par wahi karo. "
+                "BST mein ordering shortcut deti hai, left chhota, right bada. Traversal ka order badal do toh kaam badal jata hai. "
+                "Is family mein main ye samjha sakta hoon: Binary Tree Traversals, Maximum Depth, Invert Binary Tree, Validate BST, "
+                "aur Lowest Common Ancestor. Kisi ka naam bolo, main pattern ke saath samjha dunga."
+            ),
+            "english": (
+                "Tree problems usually use recursion: do something at the node, then recurse left and right. "
+                "In a BST, ordering is the shortcut: left is smaller, right is larger. Changing the traversal order changes the job. "
+                "In this family I can explain: Binary Tree Traversals, Maximum Depth, Invert Binary Tree, Validate BST, "
+                "and Lowest Common Ancestor. Name one of those and I will explain it with its pattern."
+            ),
+        },
+    },
+    {
+        "id": "graphs",
+        "title": "Graph patterns",
+        "keywords": ["graph", "bfs", "dfs", "dijkstra", "shortest path", "connected", "adjacency", "island", "visited", "topological", "breadth", "depth first"],
+        "answers": {
+            "hinglish": (
+                "Graph ke do main traversal hain: BFS queue se level by level chalta hai aur unweighted graph mein shortest path deta hai. "
+                "DFS gehra jata hai aur cycle ya connected parts dhoondhne mein kaam aata hai. Dono mein visited set zaroori hai. "
+                "Weighted graph mein shortest path ke liye Dijkstra chahiye, jo priority queue se chalta hai, BFS kaafi nahi hai. "
+                "Is family mein main ye samjha sakta hoon: BFS, DFS, aur Number of Islands. Kisi ka naam bolo."
+            ),
+            "english": (
+                "Graphs have two main traversals: BFS uses a queue, runs level by level, and gives the shortest path in an unweighted graph. "
+                "DFS goes deep and helps with cycles and connected parts. Both need a visited set. "
+                "For weighted graphs, the shortest path needs Dijkstra's algorithm with a priority queue; BFS alone is not enough. "
+                "In this family I can explain: BFS, DFS, and Number of Islands. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "dp",
+        "title": "Dynamic Programming patterns",
+        "keywords": ["dynamic programming", "dp", "memoization", "memoisation", "tabulation", "knapsack", "subsequence", "optimal substructure", "overlapping"],
+        "answers": {
+            "hinglish": (
+                "DP tab kaam aata hai jab wahi chhote subproblems baar baar aayein aur bada jawab chhote jawabon se bane. "
+                "Pehle recurrence likho, phir base case, phir ya toh memo ke saath recursion ya table ke saath iteration. "
+                "Is family mein main ye samjha sakta hoon: Climbing Stairs, House Robber, aur Coin Change. "
+                "Kisi ka naam bolo, main recurrence ke saath samjha dunga."
+            ),
+            "english": (
+                "Dynamic programming helps when the same small subproblems repeat and the big answer is built from small ones. "
+                "First write the recurrence, then the base case, then use recursion with memoisation or iteration with a table. "
+                "In this family I can explain: Climbing Stairs, House Robber, and Coin Change. "
+                "Name one of those and I will explain it with its recurrence."
+            ),
+        },
+    },
+    {
+        "id": "sorting",
+        "title": "Sorting patterns",
+        "keywords": ["sort", "sorting", "bubble", "insertion", "selection", "heap sort", "quicksort", "mergesort", "quick sort", "merge sort"],
+        "answers": {
+            "hinglish": (
+                "Sorting ke main patterns: divide and conquer, jaise quick sort aur merge sort, aur simple insertion style, jaise bubble aur insertion sort. "
+                "Quick sort average mein tez aur in place hota hai, merge sort hamesha O of n log n deta hai aur stable hota hai. "
+                "Is family mein main ye samjha sakta hoon: Quick Sort, Merge Sort, aur Binary Search. Kisi ka naam bolo."
+            ),
+            "english": (
+                "Sorting has two main families: divide and conquer, such as quick sort and merge sort, and simple insertion-style sorts, "
+                "such as bubble and insertion sort. Quick sort is fast on average and in place; merge sort is always O of n log n and stable. "
+                "In this family I can explain: Quick Sort, Merge Sort, and Binary Search. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "heap",
+        "title": "Heap patterns",
+        "keywords": ["heap", "priority queue", "kth", "top k", "largest", "smallest"],
+        "answers": {
+            "hinglish": (
+                "Heap tab use karo jab baar baar sabse bada ya sabse chhota element chahiye. Top k largest ke liye min-heap rakho, top k smallest ke liye max-heap. "
+                "Heap ka top hamesha jawab hota hai, baaki order matter nahi karta. "
+                "Is family mein main ye samjha sakta hoon: Kth Largest Element aur Top K Frequent Elements. Kisi ka naam bolo."
+            ),
+            "english": (
+                "Use a heap when you repeatedly need the largest or smallest element. For the top k largest, keep a min-heap; "
+                "for the top k smallest, keep a max-heap. The heap top is always the answer; the rest of the order does not matter. "
+                "In this family I can explain: Kth Largest Element and Top K Frequent Elements. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "arrays",
+        "title": "Array patterns",
+        "keywords": ["array", "subarray", "prefix", "two pointer", "sliding window", "binary search", "kadane"],
+        "answers": {
+            "hinglish": (
+                "Array ke main patterns: two pointers, sliding window, prefix sum, aur hash map. Sorted array ho toh two pointers ya binary search socho. "
+                "Subarray sum ho toh prefix sum, aur window wale sawal mein sliding window. "
+                "Is family mein main Two Sum, Sliding Window, Prefix Sum, Binary Search, aur Maximum Subarray samjha sakta hoon. Kisi ka naam bolo."
+            ),
+            "english": (
+                "Array problems mostly use four patterns: two pointers, sliding window, prefix sums, and hash maps. "
+                "A sorted array suggests two pointers or binary search; subarray sums suggest prefix sums; window questions suggest sliding window. "
+                "In this family I can explain Two Sum, Sliding Window, Prefix Sum, Binary Search, and Maximum Subarray. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "strings",
+        "title": "String patterns",
+        "keywords": ["string", "substring", "palindrome", "anagram", "character", "char"],
+        "answers": {
+            "hinglish": (
+                "String ke main patterns: two pointers, hash map se counting, aur centre se expand karna. Anagram ho toh letter count socho, "
+                "palindrome ho toh centre se expand karo, bina repeat ke longest ho toh sliding window. "
+                "Is family mein main Valid Anagram, Group Anagrams, Longest Palindromic Substring, aur Longest Substring samjha sakta hoon. Kisi ka naam bolo."
+            ),
+            "english": (
+                "String problems mostly use three patterns: two pointers, hash-map counting, and expanding around a centre. "
+                "Anagrams suggest letter counts, palindromes suggest expanding around a centre, and longest-without-repeat suggests sliding window. "
+                "In this family I can explain Valid Anagram, Group Anagrams, Longest Palindromic Substring, and Longest Substring. Name one of those."
+            ),
+        },
+    },
+    {
+        "id": "recursion_backtracking",
+        "title": "Recursion & Backtracking patterns",
+        "keywords": ["recursion", "recursive", "backtrack", "backtracking", "subset", "subsets", "permutation", "combination", "n-queens", "n queens", "choose"],
+        "answers": {
+            "hinglish": (
+                "Backtracking ka pattern hai choose, explore, unchoose. Ek choice lo, aage badho, phir choice wapas lo aur doosri choice try karo. "
+                "Base case batata hai kab rukna hai, aur visited ya used tracking dobara wahi choice rokta hai. "
+                "Subsets, permutations, aur N-Queens isi pattern se bante hain. Tree aur recursion ke liye Binary Tree Traversals ya Reverse Linked List poochho."
+            ),
+            "english": (
+                "Backtracking follows choose, explore, unchoose. Make a choice, go deeper, undo the choice, and try the next one. "
+                "The base case says when to stop, and visited tracking stops repeats. Subsets, permutations, and N-Queens all follow this pattern. "
+                "For tree and recursion basics, ask about Binary Tree Traversals or Reverse Linked List."
+            ),
+        },
+    },
+]
+
+_STOPWORDS = {"a", "an", "the", "of", "in", "on", "is", "what", "how", "why", "to", "for", "with", "and", "or", "me", "my", "explain", "samjhao", "samjha", "kya", "hai", "ka", "ki", "ke", "ko", "se", "mein", "batao", "please", "tell"}
+
+
+def _text(answers, bank: str) -> str:
+    # Answers dicts may omit a language; fall back to English, never crash.
+    if isinstance(answers, dict):
+        return answers.get(bank) or answers.get("english") or next(iter(answers.values()), "")
+    return answers or ""
+
+
+def topic_meta(topic: str) -> dict:
+    entry = _entry_for_topic(topic)
+    if entry is None:
+        return {"category": "", "difficulty": ""}
+    if "category" in entry:
+        return {"category": entry["category"], "difficulty": entry.get("difficulty", "")}
+    cat, diff = TOPIC_META.get(topic, ("", ""))
+    return {"category": cat, "difficulty": diff}
+
+
+def _clean_tokens(text: str) -> list:
+    out = []
+    for tok in (text or "").lower().split():
+        tok = tok.strip(".,?!:;()[]{}<>").strip("'").strip('"')
+        if tok:
+            out.append(tok)
+    return out
+
+
+def _score_entry(entry, raw: str, norm: str) -> float:
+    # Keyword phrase hits dominate; token overlap + fuzzy topic-name
+    # similarity rescue misheard / mistyped questions.
+    import difflib
+
+    raw_low = (raw or "").lower()
+    best_kw = 0.0
+    for kw in entry["keywords"]:
+        k = kw.lower()
+        if k in norm or k in raw_low:
+            best_kw = max(best_kw, 12.0 + len(k) / 4.0)
+        else:
+            kw_tokens = _clean_tokens(k)
+            if kw_tokens and all(t in norm or t in raw_low for t in kw_tokens):
+                best_kw = max(best_kw, 6.0)
+    topic_tokens = [t for t in _clean_tokens(entry["topic"]) if t not in _STOPWORDS and len(t) > 2]
+    query_tokens = set(_clean_tokens(norm)) | set(_clean_tokens(raw_low))
+    overlap = sum(1 for t in topic_tokens if t in query_tokens)
+    fuzzy = 0.0
+    if overlap:
+        ratio = difflib.SequenceMatcher(None, " ".join(_clean_tokens(norm)), entry["topic"].lower()).ratio()
+        if ratio >= 0.55:
+            fuzzy = ratio * 6.0
+    return best_kw + min(overlap, 3) * 3.0 + fuzzy
+
+
+_MATCH_THRESHOLD = 10.0
+
+
+_FAMILY_CATEGORIES = {
+    "linked_list": "Linked List",
+    "stack_queue": "Stack & Queue",
+    "trees": "Trees",
+    "graphs": "Graphs",
+    "dp": "Dynamic Programming",
+    "sorting": "Sorting",
+    "heap": "Heap",
+    "arrays": "Arrays & Searching",
+    "strings": "Strings & Hashing",
+    "recursion_backtracking": "Trees",
+}
+
+
+def _topics_in_category(category: str, limit: int = 4, exclude: str | None = None) -> list[str]:
+    return [t["topic"] for t in topic_list() if t["category"] == category and t["topic"] != exclude][:limit]
+
+
+def answer_query(transcript: str, lang: str = "hinglish") -> dict:
     bank = answer_lang_for(lang)
-    if best:
-        entry = best[1]
-        return entry["topic"], entry["answers"][bank]
-    return "Not in list", FALLBACKS[bank]
+    norm = _normalize(transcript)
+    scored = sorted(
+        ((_score_entry(entry, transcript, norm), entry) for entry in ANSWERS),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    best_score, best_entry = scored[0] if scored else (0.0, None)
+    if best_entry is not None and best_score >= _MATCH_THRESHOLD:
+        meta = topic_meta(best_entry["topic"])
+        return {
+            "topic": best_entry["topic"],
+            "answer": _text(best_entry["answers"], bank),
+            "category": meta["category"],
+            "difficulty": meta["difficulty"],
+            "matched": True,
+            "family": None,
+            "suggestions": _topics_in_category(meta["category"], limit=4, exclude=best_entry["topic"]),
+        }
+    # Family fallback: teach the pattern family instead of dead-ending.
+    norm_low = norm.lower()
+    raw_low = (transcript or "").lower()
+    best_family = None
+    best_family_score = 0
+    for fam in FAMILY_GUIDES:
+        hits = sum(len(kw) for kw in fam["keywords"] if kw in norm_low or kw in raw_low)
+        if hits > best_family_score:
+            best_family_score = hits
+            best_family = fam
+    if best_family is not None and best_family_score > 0:
+        return {
+            "topic": best_family["title"],
+            "answer": _text(best_family["answers"], bank),
+            "category": "Pattern family",
+            "difficulty": "",
+            "matched": False,
+            "family": best_family["id"],
+            "suggestions": _topics_in_category(_FAMILY_CATEGORIES.get(best_family["id"], ""), limit=4),
+        }
+    return {
+        "topic": "Not in list",
+        "answer": FALLBACKS[bank],
+        "category": "",
+        "difficulty": "",
+        "matched": False,
+        "family": None,
+        "suggestions": [s["topic"] for s in suggest_topics("", limit=6)],
+    }
+
+
+def find_answer(transcript: str, lang: str = "hinglish") -> tuple[str, str]:
+    # Backwards-compatible wrapper: returns (topic, answer_text).
+    result = answer_query(transcript, lang)
+    return result["topic"], result["answer"]
 
 
 def find_followup(topic: str, kind: str, lang: str = "hinglish") -> str:
-    """Clarifying follow-ups: kind is 'simple' or 'example'."""
+    # Clarifying follow-ups: kind is 'simple' or 'example'.
     entry = _entry_for_topic(topic)
+    bank = answer_lang_for(lang)
     if entry is None:
-        bank = answer_lang_for(lang)
         return FALLBACKS[bank]
     if kind == "example":
-        return entry["example"]
-    bank = answer_lang_for(lang)
-    simple = entry["simple"]
-    return simple.get(bank) or simple["english"]
+        return _text(entry["example"], bank) if isinstance(entry["example"], dict) else entry["example"]
+    return _text(entry["simple"], bank)
 
 
 def topics() -> list[str]:
     return [e["topic"] for e in ANSWERS]
+
+
+def topic_list() -> list[dict]:
+    out = []
+    for entry in ANSWERS:
+        meta = topic_meta(entry["topic"])
+        out.append({"topic": entry["topic"], "category": meta["category"], "difficulty": meta["difficulty"]})
+    return out
+
+
+_POPULAR = [
+    "Two Sum",
+    "Binary Search",
+    "Reverse Linked List",
+    "Valid Parentheses",
+    "Binary Tree Traversals",
+    "Breadth-First Search (BFS)",
+    "Climbing Stairs",
+    "Quick Sort",
+]
+
+
+def suggest_topics(query: str, limit: int = 6, exclude: str | None = None) -> list[dict]:
+    if not (query or "").strip():
+        names = [t for t in _POPULAR if t != exclude][:limit]
+        return [{"topic": t, **topic_meta(t)} for t in names if _entry_for_topic(t)]
+    norm = _normalize(query)
+    scored = sorted(
+        ((_score_entry(entry, query, norm), entry) for entry in ANSWERS),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    out = []
+    for score, entry in scored:
+        if score <= 0 or entry["topic"] == exclude:
+            continue
+        meta = topic_meta(entry["topic"])
+        out.append({"topic": entry["topic"], "category": meta["category"], "difficulty": meta["difficulty"]})
+        if len(out) >= limit:
+            break
+    if not out:
+        names = [t for t in _POPULAR if t != exclude][:limit]
+        return [{"topic": t, **topic_meta(t)} for t in names if _entry_for_topic(t)]
+    return out
