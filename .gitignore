@@ -3,16 +3,10 @@
 .env.*
 !.env.example
 
-# Python bytecode and caches
-__pycache__/
-*.py[cod]
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
+# Dependencies and build output
+node_modules/
+server/public/
 
-# Virtual environments and installed libraries
-venv/
-.venv/
-env/
-lib/
-site-packages/
+# Logs and OS files
+*.log
+.DS_Store

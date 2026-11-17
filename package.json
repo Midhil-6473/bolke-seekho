@@ -1,0 +1,26 @@
+{
+    "dependencies": {
+        "express": "^4.21.2",
+        "multer": "^2.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
+    "description": "Bolke Seekho \u2014 voice-first DSA revision studio. React (Vite) frontend + Node (Express) backend.",
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.3.4",
+        "concurrently": "^9.1.0",
+        "vite": "^6.0.0"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "name": "bolke-seekho",
+    "private": true,
+    "scripts": {
+        "build": "vite build",
+        "dev": "concurrently \"node server/src/server.js\" \"vite\"",
+        "start": "node server/src/server.js"
+    },
+    "type": "module",
+    "version": "5.0.0"
+}
